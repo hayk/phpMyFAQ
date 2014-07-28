@@ -11,22 +11,27 @@
  * @category  phpMyFAQ
  * @package   Administration
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2012-2013 phpMyFAQ Team
+ * @copyright 2012-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2012-04-16
  */
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
+
 ?>
     <header>
-        <h2><i class="icon-wrench"></i> <?php echo $PMF_LANG['ad_menu_instances']; ?></h2>
+        <h2 class="page-header"><i class="fa fa-wrench"></i> <?php echo $PMF_LANG['ad_menu_instances']; ?></h2>
     </header>
 <?php
-if ($permission['editinstances']) {
+if ($user->perm->checkRight($user->getUserId(), 'editinstances')) {
 
     $instanceId = PMF_Filter::filterInput(INPUT_GET, 'instance_id', FILTER_VALIDATE_INT);
 
@@ -34,7 +39,7 @@ if ($permission['editinstances']) {
     $instanceData = $instance->getInstanceById($instanceId);
 
 ?>
-    <form class="form-horizontal" action="?action=updateinstance" method="post">
+    <form class="form-horizontal" action="?action=updateinstance" method="post" accept-charset="utf-8">
         <input type="hidden" name="instance_id" value="<?php echo $instanceData->id ?>" />
         <div class="control-group">
             <label class="control-label"><?php echo $PMF_LANG["ad_instance_url"] ?>:</label>
@@ -66,7 +71,7 @@ if ($permission['editinstances']) {
             ?>
             </div>
         </div>
-        <div class="form-actions">
+        <div class="form-group">
             <button class="btn btn-primary" type="submit">
                 <?php echo $PMF_LANG["ad_instance_button"] ?>
             </button>

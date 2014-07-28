@@ -6,7 +6,7 @@
  * @subpackage Translation
  * @author     Karoly SIMO <skaroly@bestdomain.ro>
  * @since      2004-11-09
- * @copyright  2004-2013 phpMyFAQ Team
+ * @copyright  2004-2014 phpMyFAQ Team
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -777,7 +777,7 @@ $PMF_LANG['ad_export_gen_docbook'] = 'Creeaza o fila  Docbook';
 $PMF_LANG['ad_news_data'] = 'Data stirii';
 $PMF_LANG['ad_news_author_name'] = 'Numele autorului:';
 $PMF_LANG['ad_news_author_email'] = 'Emailul autorului:';
-$PMF_LANG['ad_news_set_active'] = 'Activeaza:';
+$PMF_LANG['ad_news_set_active'] = 'Activeaza';
 $PMF_LANG['ad_news_allowComments'] = 'Accepta comentarii:';
 $PMF_LANG['ad_news_expiration_window'] = 'Timpul de expirare al stirii(optional)';
 $PMF_LANG['ad_news_from'] = 'De la:';

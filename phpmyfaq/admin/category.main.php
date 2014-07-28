@@ -2,7 +2,7 @@
 /**
  * List all categories in the admin section
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,18 +11,22 @@
  * @category  phpMyFAQ
  * @package   Administration
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2003-2013 phpMyFAQ Team
+ * @copyright 2003-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2003-12-20
  */
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
-if ($permission['editcateg']) {
+if ($user->perm->checkRight($user->getUserId(), 'editcateg')) {
     $templateVars = array(
         'PMF_LANG'        => $PMF_LANG,
         'categoryTree'    => '',
@@ -39,7 +43,8 @@ if ($permission['editcateg']) {
 
     // Save a new category
     if ($action == 'savecategory') {
-        $category = new PMF_Category($faqConfig, array(), false);
+
+        $category = new PMF_Category($faqConfig, [], false);
         $category->setUser($currentAdminUser);
         $category->setGroups($currentAdminGroups);
         $parentId     = PMF_Filter::filterInput(INPUT_POST, 'parent_id', FILTER_VALIDATE_INT);
@@ -50,7 +55,7 @@ if ($permission['editcateg']) {
             'user_id'     => PMF_Filter::filterInput(INPUT_POST, 'user_id', FILTER_VALIDATE_INT)
         );
 
-        $permissions = array();
+        $permissions = [];
         if ('all' === PMF_Filter::filterInput(INPUT_POST, 'userpermission', FILTER_SANITIZE_STRING)) {
             $permissions += array(
                 'restricted_user' => array(
@@ -99,7 +104,8 @@ if ($permission['editcateg']) {
 
     // Updates an existing category
     if ($action == 'updatecategory') {
-        $category = new PMF_Category($faqConfig, array(), false);
+
+        $category = new PMF_Category($faqConfig, [], false);
         $category->setUser($currentAdminUser);
         $category->setGroups($currentAdminGroups);
         $parentId     = PMF_Filter::filterInput(INPUT_POST, 'parent_id', FILTER_VALIDATE_INT);
@@ -111,7 +117,7 @@ if ($permission['editcateg']) {
             'description' => PMF_Filter::filterInput(INPUT_POST, 'description', FILTER_SANITIZE_STRING),
             'user_id'     => PMF_Filter::filterInput(INPUT_POST, 'user_id', FILTER_VALIDATE_INT));
 
-        $permissions = array();
+        $permissions = [];
         if ('all' === PMF_Filter::filterInput(INPUT_POST, 'userpermission', FILTER_SANITIZE_STRING)) {
             $permissions += array(
                 'restricted_user' => array(
@@ -170,8 +176,9 @@ if ($permission['editcateg']) {
     }
 
     // Deletes an existing category
-    if ($permission['delcateg'] && $action == 'removecategory') {
-        $category = new PMF_Category($faqConfig, array(), false);
+    if ($user->perm->checkRight($user->getUserId(), 'delcateg') && $action == 'removecategory') {
+
+        $category = new PMF_Category($faqConfig, [], false);
         $category->setUser($currentAdminUser);
         $category->setGroups($currentAdminGroups);
         $id         = PMF_Filter::filterInput(INPUT_POST, 'cat', FILTER_VALIDATE_INT);
@@ -192,7 +199,8 @@ if ($permission['editcateg']) {
 
     // Moves a category
     if ($action == 'changecategory') {
-        $category = new PMF_Category($faqConfig, array(), false);
+
+        $category = new PMF_Category($faqConfig, [], false);
         $category->setUser($currentAdminUser);
         $category->setGroups($currentAdminGroups);
         $categoryId_1 = PMF_Filter::filterInput(INPUT_POST, 'cat', FILTER_VALIDATE_INT);
@@ -211,7 +219,8 @@ if ($permission['editcateg']) {
 
     // Pastes a category
     if ($action == 'pastecategory') {
-        $category = new PMF_Category($faqConfig, array(), false);
+
+        $category = new PMF_Category($faqConfig, [], false);
         $category->setUser($currentAdminUser);
         $category->setGroups($currentAdminGroups);
         $categoryId = PMF_Filter::filterInput(INPUT_POST, 'cat', FILTER_VALIDATE_INT);
@@ -234,7 +243,7 @@ if ($permission['editcateg']) {
     if (isset($category)) {
         unset($category);
     }
-    $category = new PMF_Category($faqConfig, array(), false);
+    $category = new PMF_Category($faqConfig, [], false);
     $category->setUser($currentAdminUser);
     $category->setGroups($currentAdminGroups);
     $category->getMissingCategories();
@@ -319,7 +328,7 @@ if ($permission['editcateg']) {
     $templateVars['categoryTree'] .= "</li>\n</ul>";
 
     $twig->loadTemplate('category/main.twig')
-        ->display($templateVars);
+         ->display($templateVars);
 
     unset($templateVars, $csrfToken, $open, $level, $category, $id, $cat, $lang, $lastCatId);
 } else {

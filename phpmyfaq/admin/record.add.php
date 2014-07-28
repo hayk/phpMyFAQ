@@ -3,7 +3,7 @@
  * Adds a record in the database, handles the preview and checks for missing
  * category entries.
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -12,18 +12,22 @@
  * @category  phpMyFAQ
  * @package   Administration
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2003-2013 phpMyFAQ Team
+ * @copyright 2003-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2003-02-23
  */
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
-if ($permission['editbt']|| $permission['addbt']) {
+if ($user->perm->checkRight($user->getUserId(), 'editbt') || $user->perm->checkRight($user->getUserId(), 'addbt')) {
 
     // FAQ data
     $dateStart  = PMF_Filter::filterInput(INPUT_POST, 'dateStart', FILTER_SANITIZE_STRING);
@@ -54,7 +58,7 @@ if ($permission['editbt']|| $permission['addbt']) {
     
     // Permissions
 
-    $permissions = array();
+    $permissions = [];
     if ('all' === PMF_Filter::filterInput(INPUT_POST, 'userpermission', FILTER_SANITIZE_STRING)) {
         $permissions += array(
             'restricted_user' => array(
@@ -88,16 +92,16 @@ if ($permission['editbt']|| $permission['addbt']) {
     }
 
     if (!isset($categories['rubrik'])) {
-        $categories['rubrik'] = array();
+        $categories['rubrik'] = [];
     }
     
     if (!is_null($question) && !is_null($categories['rubrik'])) {
         // new entry
         $logging = new PMF_Logging($faqConfig);
         $logging->logAdmin($user, 'Beitragcreatesave');
-        printf("<h2>%s</h2>\n", $PMF_LANG['ad_entry_aor']);
+        printf("<h2 class=\"page-header\">%s</h2>\n", $PMF_LANG['ad_entry_aor']);
 
-        $category = new PMF_Category($faqConfig, array(), false);
+        $category = new PMF_Category($faqConfig, [], false);
         $category->setUser($currentAdminUser);
         $category->setGroups($currentAdminGroups);
         $tagging  = new PMF_Tags($faqConfig);
@@ -134,7 +138,7 @@ if ($permission['editbt']|| $permission['addbt']) {
             $faq->addCategoryRelations($categories['rubrik'], $recordId, $recordData['lang']);
             // Insert the tags
             if ($tags != '') {
-                $tagging->saveTags($recordId, explode(',',$tags));
+                $tagging->saveTags($recordId, explode(',', trim($tags)));
             }
             
             // Add user permissions
@@ -159,7 +163,7 @@ if ($permission['editbt']|| $permission['addbt']) {
                 }
 
                 $url   = sprintf(
-                    '%s?action=artikel&amp;cat=%d&amp;id=%d&amp;artlang=%s',
+                    '%s?action=artikel&cat=%d&id=%d&artlang=%s',
                     $faqConfig->get('main.referenceURL'),
                     $categories['rubrik'][0],
                     $recordId,
@@ -187,10 +191,12 @@ if ($permission['editbt']|| $permission['addbt']) {
                                                $faqConfig->get('socialnetworks.twitterAccessTokenSecret'));
 
                 $link = PMF_Link::getSystemRelativeUri() .
-                        sprintf('?action=artikel&amp;cat=%d&amp;id=%d&amp;artlang=%s',
+                        sprintf(
+                            '?action=artikel&amp;cat=%d&amp;id=%d&amp;artlang=%s',
                             $category,
                             $recordId,
-                            $recordLang);
+                            $recordLang
+                        );
                 $link             = $faqConfig->get('main.referenceURL') . str_replace('/admin/','/', $link);
                 $oLink            = new PMF_Link($link, $faqConfig);
                 $oLink->itemTitle = $question;
@@ -216,21 +222,21 @@ if ($permission['editbt']|| $permission['addbt']) {
 <?php
         } else {
             printf(
-                '<p class="alert alert-error">%s</p>',
+                '<p class="alert alert-danger">%s</p>',
                 $PMF_LANG['ad_entry_savedfail'] . $faqConfig->getDb()->error()
             );
         }
 
     } else {
         printf(
-            '<header><h2><i class="icon-pencil"></i> %s</h2></header>',
+            '<header><h2 class="page-header"><i class="fa fa-pencil"></i> %s</h2></header>',
             $PMF_LANG['ad_entry_aor']
         );
         printf(
-            '<p class="alert alert-error">%s</p>', $PMF_LANG['ad_entryins_fail']
+            '<p class="alert alert-danger">%s</p>', $PMF_LANG['ad_entryins_fail']
         );
 ?>
-    <form action="?action=editpreview" method="post">
+    <form action="?action=editpreview" method="post" accept-charset="utf-8">
     <input type="hidden" name="question"            value="<?php print PMF_String::htmlspecialchars($question); ?>" />
     <input type="hidden" name="content" class="mceNoEditor" value="<?php print PMF_String::htmlspecialchars($content); ?>" />
     <input type="hidden" name="lang"                value="<?php print $recordLang; ?>" />

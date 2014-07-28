@@ -68,7 +68,7 @@
 
 **1. <a id="1"></a>Introduction**
 
-phpMyFAQ is a multilingual, completely database-driven FAQ-system. It supports various databases to store all data, PHP 5.3.3 (or higher) is needed in order to access this data. phpMyFAQ also offers a multi-language Content Management-System with a WYSIWYG editor and an Image Manager, flexible multi-user support with user and group based permissions on categories and records, a wiki-like revision feature, a news system, user-tracking, language modules, enhanced automatic content negotiation, templates, extensive XML-support, PDF-support, a backup-system, a dynamic site map, related articles, tagging, RSS feeds, built-in spam protection systems, LDAP support, Twitter and Facebook support and an easy to use installation script.
+phpMyFAQ is a multilingual, completely database-driven FAQ-system. It supports various databases to store all data, PHP 5.4.4 (or higher) is needed in order to access this data. phpMyFAQ also offers a multi-language Content Management-System with a WYSIWYG editor and an Image Manager, flexible multi-user support with user and group based permissions on categories and records, a wiki-like revision feature, a news system, user-tracking, language modules, enhanced automatic content negotiation, templates, extensive XML-support, PDF-support, a backup-system, a dynamic site map, related articles, tagging, RSS feeds, built-in spam protection systems, LDAP support, Twitter and Facebook support and an easy to use installation script.
 
 This documentation should help you with installing, administrating and using phpMyFAQ.
 
@@ -109,7 +109,7 @@ If you're interested, just take a look at our [support page](http://www.phpmyfaq
 
 **1.3. <a id="1.3"></a>Copyright**
 
-© 2001-2013 by Thorsten Rinne and phpMyFAQ Team under the [ Mozilla Public License 2.0](http://www.mozilla.org/MPL/2.0/). All rights reserved.
+© 2001-2014 by Thorsten Rinne and phpMyFAQ Team under the [ Mozilla Public License 2.0](http://www.mozilla.org/MPL/2.0/). All rights reserved.
 
 [back to top][64]
 
@@ -122,7 +122,7 @@ If you're interested, just take a look at our [support page](http://www.phpmyfaq
 phpMyFAQ addresses a database system via PHP. In order to install it you will need a web server that meets the following requirements:
 
 *   **[PHP](http://www.php.net)**
-    *   from version 5.3.3 (recommended: latest PHP 5.x)
+    *   from version 5.4.4 (recommended: latest PHP 5.x)
     *   register_globals = off
     *   magic_quotes_gpc = off
     *   safe_mode = off (recommended)
@@ -134,12 +134,12 @@ phpMyFAQ addresses a database system via PHP. In order to install it you will ne
     *   SPL support
 *   **Web server** ( [Apache](http://httpd.apache.org) 2.x or [nginx](http://www.nginx.net/) 0.7+ or [lighttpd](http://www.lighttpd.net) 1.0+ or [IIS](http://www.microsoft.com/) 6.0+ or Zeus Webserver)
 *   **Database server**
-    *   [MySQL](http://www.mysql.com) 5.x with the MySQL extension (recommended: 5.5.x)
-    *   [MySQL](http://www.mysql.com) 5.x with the MySQLi extension (recommended: 5.5.x)
-    *   [PostgreSQL](http://www.postgresql.org) 8.x (recommended: latest 8.x)
-    *   [Microsoft SQL Server](http://www.microsoft.com/sql/) 2005, 2008, 2012
+    *   [MySQL](http://www.mysql.com) 5.x with the MySQLi extension (recommended: 5.6.x)
+    *   [PostgreSQL](http://www.postgresql.org) 9.x (recommended: latest 9.x)
+    *   [Microsoft SQL Server](http://www.microsoft.com/sql/) 2012 and later
     *   [SQLite](http://www.sqlite.org)
     *   [MariaDB](http://montyprogram.com/mariadb/) 5.x (experimental)
+    *   [Percona Server](http://www.percona.com) 5.x (experimental)
 *   correctly set: access permissions, owner, group
 
 You can only run phpMyFAQ successfully, when the PHP directives safe_mode, register_globals and magic_quotes_gpc is set to off, further constraints affect the directives open_basedir and disable_functions, which can be set in the central php.ini or the httpd.conf respectively.
@@ -150,7 +150,7 @@ You can determine which versions your web server is running by creating a file c
 
 Upload this file to your webspace and open it using your browser. The installation-script checks which version of PHP is installed on your server. Should you not meet the requirements, you cannot start the installation process.
 
-In case you have PHP below 5.3.2 installed you cannot use phpMyFAQ.
+In case you have PHP below 5.4.3 installed you cannot use phpMyFAQ.
 
 phpMyFAQ uses a modern HTML5/CSS3 powered markup. The supported browsers are Mozilla Firefox 3.6 and later (Windows/OS X/Linux), Safari 5.x or later (OS X/Windows/iOS), Chrome 5 or later (Windows/OS X/Linux), Opera 11.0 or later (Windows/OS X/Linux) and Internet Explorer 7 or later for Windows. You have to enable JavaScript for the Ajax based functions as well.
 
@@ -195,7 +195,7 @@ The database user needs the permissions for CREATE, DROP, ALTER, INDEX, INSERT, 
 
 Open your browser and type in the following URL:
 
-`http://www.example.com/faq/setup/setup.php`
+`http://www.example.com/faq/setup/index.php`
 
 Substitute **www.example.com** with your actual domain name. When the site is loaded enter the address of your database server (e.g. db.provider.com), your database username and password as well as the database name. The database have to be created with UTF-8 chraracter set before running the installation script. You can leave the prefix-field empty. If you are planning on using multiple FAQs in one database you will have to use a table prefix, though (i.e. *sport* for a sports FAQ, *weather* for a weather FAQ, etc.). Please note that only letters and an underline: "_" can be used as the prefix.
 
@@ -722,10 +722,10 @@ You can create entries directly in the admin area. Created entries are NOT publi
     
     You can select the language of your FAQ. By default the selected language saved in the configuration will be chosen. You can create entries in multiple languages like this: Write an article in English (or any other language) and save it. Now choose *Edit FAQs* and edit your English FAQ record. Change the question, answer and keywords and change language to, let's say Brazilian Portuguese. *Save* the FAQ record. Now you can, when you click *edit records*, see both FAQs in your list, having the same id, yet different languages.
     
-*	 **Attachments**
-	 
-	 You can add attachments like PDFs or any other binary data using the **Add attachment** button. If you click on the button, a popup opens and you can upload an attachment. Please keep in mind that the PHP configuration about upload size will be checked.
-	 
+*    **Attachments**
+
+    You can add attachments like PDFs or any other binary data using the **Add attachment** button. If you click on the button, a popup opens and you can upload an attachment. Please keep in mind that the PHP configuration about upload size will be checked.
+
 *   **Keywords**
     
     Keywords are relevant for searching through the database. In case you didn't include a specific word in the FAQ itself, but it is closely related to the content you may wish to include it as a keyword, so the FAQ will come up as a search result. It is also possible to use non-related keywords so that a wrongly entered search will also lead to the right results.
@@ -1138,7 +1138,7 @@ Co-Authors: [Stephan Hochhaus][89], [Markus Gläser][90]
 
 Date: 2013-04-21
 
-© 2001-2013 phpMyFAQ Team
+© 2001-2014 phpMyFAQ Team
 
 This documentation is licensed under a [Creative Commons License](http://creativecommons.org/licenses/by/2.0/).
 

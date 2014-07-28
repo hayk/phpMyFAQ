@@ -2,7 +2,7 @@
 /**
  * The main glossary class
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,7 +11,7 @@
  * @category  phpMyFAQ
  * @package   PMF_Glossary
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2005-2013 phpMyFAQ Team
+ * @copyright 2005-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2005-09-15
@@ -27,7 +27,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
  * @category  phpMyFAQ
  * @package   PMF_Glossary
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2005-2013 phpMyFAQ Team
+ * @copyright 2005-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2005-09-15
@@ -44,7 +44,7 @@ class PMF_Glossary
      *
      * @var array
      */
-    private $item = array();
+    private $item = [];
 
     /**
      * Definition of an item
@@ -72,7 +72,7 @@ class PMF_Glossary
      */
     public function getAllGlossaryItems()
     {
-        $items = array();
+        $items = [];
 
         $query = sprintf("
             SELECT
@@ -114,20 +114,20 @@ class PMF_Glossary
         $attributes = array(
             'href', 'src', 'title', 'alt', 'class', 'style', 'id', 'name',
             'face', 'size', 'dir', 'rel', 'rev',
-            'onmouseenter', 'onmouseleave', 'onafterprint', 'onbeforeprint', 
-            'onbeforeunload', 'onhashchange', 'onmessage', 'onoffline', 'ononline', 
-            'onpopstate', 'onpagehide', 'onpageshow', 'onresize', 'onunload', 
-            'ondevicemotion', 'ondeviceorientation', 'onabort', 'onblur', 
-            'oncanplay', 'oncanplaythrough', 'onchange', 'onclick', 'oncontextmenu', 
-            'ondblclick', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 
-            'ondragover', 'ondragstart', 'ondrop', 'ondurationchange', 'onemptied', 
-            'onended', 'onerror', 'onfocus', 'oninput', 'oninvalid', 'onkeydown', 
-            'onkeypress', 'onkeyup', 'onload', 'onloadeddata', 'onloadedmetadata', 
-            'onloadstart', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 
-            'onmouseup', 'onmozfullscreenchange', 'onmozfullscreenerror', 'onpause', 
-            'onplay', 'onplaying', 'onprogress', 'onratechange', 'onreset', 
-            'onscroll', 'onseeked', 'onseeking', 'onselect', 'onshow', 'onstalled', 
-            'onsubmit', 'onsuspend', 'ontimeupdate', 'onvolumechange', 'onwaiting', 
+            'onmouseenter', 'onmouseleave', 'onafterprint', 'onbeforeprint',
+            'onbeforeunload', 'onhashchange', 'onmessage', 'onoffline', 'ononline',
+            'onpopstate', 'onpagehide', 'onpageshow', 'onresize', 'onunload',
+            'ondevicemotion', 'ondeviceorientation', 'onabort', 'onblur',
+            'oncanplay', 'oncanplaythrough', 'onchange', 'onclick', 'oncontextmenu',
+            'ondblclick', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave',
+            'ondragover', 'ondragstart', 'ondrop', 'ondurationchange', 'onemptied',
+            'onended', 'onerror', 'onfocus', 'oninput', 'oninvalid', 'onkeydown',
+            'onkeypress', 'onkeyup', 'onload', 'onloadeddata', 'onloadedmetadata',
+            'onloadstart', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover',
+            'onmouseup', 'onmozfullscreenchange', 'onmozfullscreenerror', 'onpause',
+            'onplay', 'onplaying', 'onprogress', 'onratechange', 'onreset',
+            'onscroll', 'onseeked', 'onseeking', 'onselect', 'onshow', 'onstalled',
+            'onsubmit', 'onsuspend', 'ontimeupdate', 'onvolumechange', 'onwaiting',
             'oncopy', 'oncut', 'onpaste', 'onbeforescriptexecute', 'onafterscriptexecute'
         );
 
@@ -148,7 +148,8 @@ class PMF_Glossary
                 .'(\W+)('.$item['item'].')$'
                 .'/mis',
                 array($this, 'setTooltip'),
-                $content
+                $content,
+                1
             );
         }
 
@@ -183,7 +184,7 @@ class PMF_Glossary
         
         if (!empty($item)) {
             return sprintf(
-                '%s<a rel="tooltip" data-original-title="%s">%s</a>%s',
+                '%s<abbr rel="tooltip" data-original-title="%s">%s</abbr>%s',
                 $prefix,
                 $this->definition,
                 $item,
@@ -203,7 +204,7 @@ class PMF_Glossary
      */
     public function getGlossaryItem($id)
     {
-        $item = array();
+        $item = [];
 
         $query = sprintf("
             SELECT
@@ -251,8 +252,8 @@ class PMF_Glossary
             PMF_Db::getTablePrefix(),
             $this->_config->getDb()->nextId(PMF_Db::getTablePrefix().'faqglossary', 'id'),
             $this->_config->getLanguage()->getLanguage(),
-            $this->item,
-            $this->definition
+            PMF_String::htmlspecialchars($this->item),
+            PMF_String::htmlspecialchars($this->definition)
         );
 
         if ($this->_config->getDb()->query($query)) {
@@ -284,8 +285,8 @@ class PMF_Glossary
             WHERE
                 id = %d AND lang = '%s'",
             PMF_Db::getTablePrefix(),
-            $this->item,
-            $this->definition,
+            PMF_String::htmlspecialchars($this->item),
+            PMF_String::htmlspecialchars($this->definition),
             (int)$id,
             $this->_config->getLanguage()->getLanguage()
         );

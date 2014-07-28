@@ -5,7 +5,7 @@
  * @author    Vanja Hrustic <vanja@vanja.com>
  * @author    Slavisa Milojkovic <s.milojkovic@gmail.com>
  * @since     2004-06-24
- * @copyright 2006-2013 phpMyFAQ Team
+ * @copyright 2006-2014 phpMyFAQ Team
  * @version   $Id: language_sr.php,v 1.26 2008-05-31 11:49:42 thorstenr Exp $
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
@@ -712,7 +712,7 @@ $PMF_LANG['ad_export_gen_docbook'] = 'Napravi Docbook fajl';
 $PMF_LANG['ad_news_data'] = 'Podaci novosti';
 $PMF_LANG['ad_news_author_name'] = 'Ime Autora:';
 $PMF_LANG['ad_news_author_email'] = 'Email Autora:';
-$PMF_LANG['ad_news_set_active'] = 'Uklju&#269;i:';
+$PMF_LANG['ad_news_set_active'] = 'Uklju&#269;i';
 $PMF_LANG['ad_news_allowComments'] = 'Dozvoli komentare:';
 $PMF_LANG['ad_news_expiration_window'] = 'Pode&scaron;avanje trajanja vesti (opciono)';
 $PMF_LANG['ad_news_from'] = 'Od:';

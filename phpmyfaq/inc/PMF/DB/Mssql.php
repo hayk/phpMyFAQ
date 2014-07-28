@@ -1,9 +1,9 @@
 <?php
 /**
- * The PMF_DB_Mssql class provides methods and functions for a Microsoft SQL
- * Server database.
+ * The PMF_DB_Mssql class provides methods and functions for Microsoft SQL
+ * Server 2012 or later
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,7 @@
  * @package   DB
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Daniel Hoechst <dhoechst@petzl.com>
- * @copyright 2005-2013 phpMyFAQ Team
+ * @copyright 2005-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @package   2005-01-11
@@ -30,7 +30,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
  * @package   DB
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Daniel Hoechst <dhoechst@petzl.com>
- * @copyright 2005-2013 phpMyFAQ Team
+ * @copyright 2005-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @package   2005-01-11
@@ -58,7 +58,7 @@ class PMF_DB_Mssql implements PMF_DB_Driver
      *
      * @var     array
      */
-    public $tableNames = array();
+    public $tableNames = [];
 
     /**
      * Connects to the database.
@@ -80,40 +80,37 @@ class PMF_DB_Mssql implements PMF_DB_Driver
         }
 
         if ('' !== $database) {
-            return $this->selectDb($database);
+            return mssql_select_db($database, $this->conn);
         }
 
         return true;
     }
 
     /**
-     * Connects to a given database
+     * This function sends a query to the database.
      *
-     * @param string $database Database name
+     * @param string  $query
+     * @param integer $offset
+     * @param integer $rowcount
      *
-     * @return boolean
+     * @return  mixed $result
      */
-    public function selectDb($database)
-    {
-        return mssql_select_db($database, $this->conn);
-    }
-
-    /**
-     * Sends a query to the database.
-     *
-     * @param string $query Query
-     *
-     * @return resource
-     */
-    public function query($query)
+    public function query($query, $offset = 0, $rowcount = 0)
     {
         if (DEBUG) {
             $this->sqllog .= PMF_Utils::debug($query);
         }
+
+        if (0 < $rowcount) {
+            $query .= sprintf(' OFFSET %d ROWS FETCH NEXT %d ROWS ONLY', $offset, $rowcount);
+        }
+
         $result = mssql_query($query, $this->conn);
+
         if (!$result) {
             $this->sqllog .= $this->error();
         }
+
         return $result;
     }
 
@@ -161,7 +158,7 @@ class PMF_DB_Mssql implements PMF_DB_Driver
      */
     public function fetchAll($result)
     {
-        $ret = array();
+        $ret = [];
         if (false === $result) {
             throw new Exception('Error while fetching result: ' . $this->error());
         }
@@ -202,7 +199,7 @@ class PMF_DB_Mssql implements PMF_DB_Driver
      */
     public function getTableStatus()
     {
-        $tables = array();
+        $tables = [];
 
         $query = "
             SELECT

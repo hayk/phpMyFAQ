@@ -2,7 +2,7 @@
 /**
  * The main FAQ class
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -15,7 +15,7 @@
  * @author    Georgi Korchev <korchev@yahoo.com>
  * @author    Adrianna Musiol <musiol@imageaccess.de>
  * @author    Peter Caesar <p.caesar@osmaco.de>
- * @copyright 2005-2013 phpMyFAQ Team
+ * @copyright 2005-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2005-12-20
@@ -62,7 +62,7 @@ define('FAQ_SORTING_TYPE_FAQID', 4);
  * @author    Georgi Korchev <korchev@yahoo.com>
  * @author    Adrianna Musiol <musiol@imageaccess.de>
  * @author    Peter Caesar <p.caesar@osmaco.de>
- * @copyright 2005-2013 phpMyFAQ Team
+ * @copyright 2005-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2005-12-20
@@ -93,14 +93,14 @@ class PMF_Faq
     *
     * @var  array
     */
-    public $faqRecord = array();
+    public $faqRecord = [];
 
     /**
     * All current FAQ records in an array
     *
     * @var  array
     */
-    public $faqRecords = array();
+    public $faqRecords = [];
 
     /**
      * Users
@@ -177,7 +177,7 @@ class PMF_Faq
     {
         global $sids;
 
-        $faqdata = array();
+        $faqdata = [];
 
         if ($orderby == 'visits') {
             $current_table = 'fv';
@@ -398,7 +398,7 @@ class PMF_Faq
 
             $counter          = 0;
             $displayedCounter = 0;
-            $renderedItems    = array();
+            $renderedItems    = [];
             while (($row = $this->_config->getDb()->fetchObject($result)) && $displayedCounter < $numPerPage) {
                 $counter ++;
                 if ($counter <= $first) {
@@ -664,7 +664,8 @@ class PMF_Faq
      *
      * @param integer $id         Record id
      * @param integer $revisionId Revision id
-     * @param boolean $isAdmin      Must be true if it is called by an admin/author context
+     * @param boolean $isAdmin    Must be true if it is called by an admin/author context
+     * 
      * @return void
      */
     public function getRecord($id, $revisionId = null, $isAdmin = false)
@@ -691,8 +692,7 @@ class PMF_Faq
             %s
             AND
                 fd.lang = '%s'
-                %s
-            GROUP BY fd.id",
+                %s",
             PMF_Db::getTablePrefix(),
             isset($revisionId) ? 'faqdata_revisions': 'faqdata',
             PMF_Db::getTablePrefix(),
@@ -937,11 +937,16 @@ class PMF_Faq
             )
         );
 
-         foreach ($queries as $query) {
+        foreach ($queries as $query) {
             $this->_config->getDb()->query($query);
-         }
+        }
 
-         return true;
+        // Delete possible attachments
+        $attId      = PMF_Attachment_Factory::fetchByRecordId($this->_config, $recordId);
+        $attachment = PMF_Attachment_Factory::create($attId);
+        $attachment->delete();
+
+        return true;
     }
 
     /**
@@ -1047,27 +1052,28 @@ class PMF_Faq
     /**
      * Adds new category relation to a record
      *
-     * @param  mixed   $categories Category or array of categories
-     * @param  integer $record_id  Record id
-     * @param  string  $language   Language
+     * @param  mixed   $category  Category or array of categories
+     * @param  integer $record_id Record id
+     * @param  string  $language  Language
+     *
      * @return boolean
      */
     public function addCategoryRelation($category, $record_id, $language)
     {
         // Just a fallback when (wrong case) $category is an array
         if (is_array($category)) {
-            addCategoryRelations($category, $record_id, $language);
+            $this->addCategoryRelations($category, $record_id, $language);
         }
         $categories[] = $category;
 
-        return addCategoryRelations($categories, $record_id, $language);
+        return $this->addCategoryRelations($categories, $record_id, $language);
     }
 
     /**
      * Deletes category relations to a record
      *
-     * @param  integer $record_id Record id
-     * @param  string  $language  Language
+     * @param  integer $record_id   Record id
+     * @param  string  $record_lang Language
      * @return boolean
      */
     public function deleteCategoryRelations($record_id, $record_lang)
@@ -1405,7 +1411,7 @@ class PMF_Faq
      */
     public function getRevisionIds($record_id, $record_lang)
     {
-        $revision_data = array();
+        $revision_data = [];
 
         $query = sprintf("
             SELECT
@@ -1590,18 +1596,20 @@ class PMF_Faq
         } else {
             $result = $this->getTopVotedData(PMF_NUMBER_RECORDS_TOPTEN, 0, $this->_config->getLanguage()->getLanguage());
         }
-        $output = array();
+        $output = [];
 
         if (count($result) > 0) {
             foreach ($result as $row) {
                 if ('visits' == $type) {
-                    $output['title'][]  = PMF_Utils::makeShorterText($row['thema'], 8);
-                    $output['url'][]    = $row['url'];
-                    $output['visits'][] = $this->plr->GetMsg('plmsgViews', $row['visits']);
+                    $output['title'][]   = PMF_Utils::makeShorterText($row['thema'], 8);
+                    $output['preview'][] = $row['thema'];
+                    $output['url'][]     = $row['url'];
+                    $output['visits'][]  = $this->plr->GetMsg('plmsgViews', $row['visits']);
                 } else {
-                    $output['title'][]  = PMF_Utils::makeShorterText($row['thema'], 8);
-                    $output['url'][]    = $row['url'];
-                    $output['voted'][]  = sprintf(
+                    $output['title'][]   = PMF_Utils::makeShorterText($row['thema'], 8);
+                    $output['preview'][] = $row['thema'];
+                    $output['url'][]     = $row['url'];
+                    $output['voted'][]   = sprintf(
                         '%s %s 5 - %s',
                         round($row['avg'], 2),
                         $this->pmf_lang['msgVoteFrom'],
@@ -1625,13 +1633,14 @@ class PMF_Faq
     {
         $date   = new PMF_Date($this->_config);
         $result = $this->getLatestData(PMF_NUMBER_RECORDS_LATEST, $this->_config->getLanguage()->getLanguage());
-        $output = array();
+        $output = [];
         
         if (count ($result) > 0) {
             foreach ($result as $row) {
-                $output['url'][]   =  $row['url'];
-                $output['title'][] = PMF_Utils::makeShorterText($row['thema'], 8);
-                $output['date'][]  = $date->format(PMF_Date::createIsoDate($row['datum']));
+                $output['url'][]     =  $row['url'];
+                $output['title'][]   = PMF_Utils::makeShorterText($row['thema'], 8);
+                $output['preview'][] = $row['thema'];
+                $output['date'][]    = $date->format(PMF_Date::createIsoDate($row['datum']));
             }
         } else {
             $output['error'] = $this->pmf_lang["err_noArticles"];
@@ -1779,8 +1788,8 @@ class PMF_Faq
                 avg DESC';
 
         $result = $this->_config->getDb()->query($query);
-        $topten = array();
-        $data = array();
+        $topten = [];
+        $data = [];
 
         $i = 1;
         $oldId = 0;
@@ -1874,46 +1883,50 @@ class PMF_Faq
         }
         $query .= '
                 ' . $this->queryPermission($this->groupSupport) . '
+
+            GROUP BY
+                id
             ORDER BY
                 fv.visits DESC';
 
-        $result = $this->_config->getDb()->query($query);
-        $topten = array();
-        $data   = array();
+        $result = $this->_config->getDb()->query($query, 0, $count);
+        $topten = [];
+        $data   = [];
 
-        $i = 1;
-        $oldId = 0;
-        while (($row = $this->_config->getDb()->fetchObject($result)) && $i <= $count) {
-            if ($oldId != $row->id) {
+        while ($row = $this->_config->getDb()->fetchObject($result)) {
 
+            if ($this->groupSupport) {
                 if (!in_array($row->user_id, array(-1, $this->user)) || !in_array($row->group_id, $this->groups)) {
                     continue;
                 }
-
-                $data['visits']     = $row->visits;
-                $data['thema']      = $row->thema;
-                $data['date']       = $row->datum;
-                $data['last_visit'] = $row->last_visit;
-
-                $title = $row->thema;
-                $url   = sprintf(
-                    '%s?%saction=artikel&amp;cat=%d&amp;id=%d&amp;artlang=%s',
-                    PMF_Link::getSystemRelativeUri(),
-                    $sids,
-                    $row->category_id,
-                    $row->id,
-                    $row->lang
-                );
-                $oLink = new PMF_Link($url, $this->_config);
-                $oLink->itemTitle = $row->thema;
-                $oLink->tooltip   = $title;
-                $data['url']      = $oLink->toString();
-
-                $topten[] = $data;
-                $i++;
+            } else {
+                if (!in_array($row->user_id, array(-1, $this->user))) {
+                    continue;
+                }
             }
-            $oldId = $row->id;
+
+            $data['visits']     = $row->visits;
+            $data['thema']      = $row->thema;
+            $data['date']       = $row->datum;
+            $data['last_visit'] = $row->last_visit;
+
+            $title = $row->thema;
+            $url   = sprintf(
+                '%s?%saction=artikel&amp;cat=%d&amp;id=%d&amp;artlang=%s',
+                PMF_Link::getSystemRelativeUri(),
+                $sids,
+                $row->category_id,
+                $row->id,
+                $row->lang
+            );
+            $oLink = new PMF_Link($url, $this->_config);
+            $oLink->itemTitle = $row->thema;
+            $oLink->tooltip   = $title;
+            $data['url']      = $oLink->toString();
+
+            $topten[] = $data;
         }
+
 
         return $topten;
     }
@@ -1974,45 +1987,47 @@ class PMF_Faq
         }
         $query .= '
                 ' . $this->queryPermission($this->groupSupport) . '
+            GROUP BY
+                id
             ORDER BY
                 fd.datum DESC';
 
-        $result = $this->_config->getDb()->query($query);
-        $latest = array();
-        $data = array();
+        $result = $this->_config->getDb()->query($query, 0, $count);
+        $latest = [];
+        $data = [];
 
-        $i = 0;
-        $oldId = 0;
-        while (($row = $this->_config->getDb()->fetchObject($result)) && $i < $count ) {
-            if ($oldId != $row->id) {
+        while (($row = $this->_config->getDb()->fetchObject($result))) {
 
+            if ($this->groupSupport) {
                 if (!in_array($row->user_id, array(-1, $this->user)) || !in_array($row->group_id, $this->groups)) {
                     continue;
                 }
-
-                $data['datum']   = $row->datum;
-                $data['thema']   = $row->thema;
-                $data['content'] = $row->content;
-                $data['visits']  = $row->visits;
-
-                $title = $row->thema;
-                $url   = sprintf(
-                    '%s?%saction=artikel&amp;cat=%d&amp;id=%d&amp;artlang=%s',
-                    PMF_Link::getSystemRelativeUri(),
-                    $sids,
-                    $row->category_id,
-                    $row->id,
-                    $row->lang
-                );
-                $oLink = new PMF_Link($url, $this->_config);
-                $oLink->itemTitle = $row->thema;
-                $oLink->tooltip   = $title;
-                $data['url']      = $oLink->toString();
-
-                $latest[] = $data;
-                $i++;
+            } else {
+                if (!in_array($row->user_id, array(-1, $this->user))) {
+                    continue;
+                }
             }
-            $oldId = $row->id;
+
+            $data['datum']   = $row->datum;
+            $data['thema']   = $row->thema;
+            $data['content'] = $row->content;
+            $data['visits']  = $row->visits;
+
+            $title = $row->thema;
+            $url   = sprintf(
+                '%s?%saction=artikel&amp;cat=%d&amp;id=%d&amp;artlang=%s',
+                PMF_Link::getSystemRelativeUri(),
+                $sids,
+                $row->category_id,
+                $row->id,
+                $row->lang
+            );
+            $oLink = new PMF_Link($url, $this->_config);
+            $oLink->itemTitle = $row->thema;
+            $oLink->tooltip   = $title;
+            $data['url']      = $oLink->toString();
+
+            $latest[] = $data;
         }
 
         return $latest;
@@ -2158,7 +2173,7 @@ class PMF_Faq
             return $question;
         }
 
-        $question = array();
+        $question = [];
 
         $query = sprintf('
             SELECT
@@ -2194,7 +2209,7 @@ class PMF_Faq
      */
      public function getAllOpenQuestions($all = true)
      {
-        $questions = array();
+        $questions = [];
 
         $query = sprintf("
             SELECT
@@ -2315,7 +2330,7 @@ class PMF_Faq
      */
     function getChangeEntries($record_id)
     {
-        $entries = array();
+        $entries = [];
 
         $query = sprintf("
             SELECT
@@ -2355,14 +2370,14 @@ class PMF_Faq
      */
     function get($QueryType = FAQ_QUERY_TYPE_DEFAULT, $nCatid = 0, $bDownwards = true, $lang = '', $date = '')
     {
-        $faqs = array();
+        $faqs = [];
 
         $result = $this->_config->getDb()->query($this->_getSQLQuery($QueryType, $nCatid, $bDownwards, $lang, $date));
 
         if ($this->_config->getDb()->numRows($result) > 0) {
             $i = 0;
             while ($row = $this->_config->getDb()->fetchObject($result)) {
-                $faq = array();
+                $faq = [];
                 $faq['id']             = $row->id;
                 $faq['solution_id']    = $row->solution_id;
                 $faq['revision_id']    = $row->revision_id;
@@ -2617,14 +2632,14 @@ class PMF_Faq
      * Returns the record permissions for users and groups
      *
      * @param   string  $mode           'group' or 'user'
-     * @param   integer $record_id
+     * @param   integer $recordId
      * @return  array
      * @access  boolean
      * @author  Thorsten Rinne <thorsten@phpmyfaq.de>
      */
-    function getPermission($mode, $record_id)
+    function getPermission($mode, $recordId)
     {
-        $permissions = array();
+        $permissions = [];
 
         if (!($mode == 'user' || $mode == 'group')) {
             return false;
@@ -2640,13 +2655,16 @@ class PMF_Faq
             $mode,
             PMF_Db::getTablePrefix(),
             $mode,
-            (int)$record_id);
+            (int)$recordId);
 
         $result = $this->_config->getDb()->query($query);
+
         if ($this->_config->getDb()->numRows($result) > 0) {
-            $row = $this->_config->getDb()->fetchObject($result);
-            $permissions[] = (int)$row->permission;
+            while (($row = $this->_config->getDb()->fetchObject($result))) {
+                $permissions[] = (int)$row->permission;
+            }
         }
+
         return $permissions;
     }
 
@@ -2703,6 +2721,8 @@ class PMF_Faq
                 fcr.category_id = '.$category.'
             AND
                 fd.lang = \''.$this->_config->getLanguage()->getLanguage().'\'
+            GROUP BY
+                fd.id
             ORDER BY
                 fd.id';
 
@@ -2941,8 +2961,8 @@ class PMF_Faq
         );
 
         $result = $this->_config->getDb()->query($query);
-        $sticky = array();
-        $data   = array();
+        $sticky = [];
+        $data   = [];
 
         $oldId = 0;
         while (($row = $this->_config->getDb()->fetchObject($result))) {
@@ -2979,13 +2999,14 @@ class PMF_Faq
     public function getStickyRecords()
     {
         $result = $this->getStickyRecordsData();
-        $output = array();
+        $output = [];
 
         if (count($result) > 0) {
             foreach ($result as $row) {
                 $output[] = array(
-                    'title' => PMF_Utils::makeShorterText($row['thema'], 8),
-                    'url'   => $row['url']
+                    'title'   => PMF_Utils::makeShorterText($row['thema'], 8),
+                    'preview' => $row['thema'],
+                    'url'     => $row['url']
                 );
             }
         } else {
@@ -2995,7 +3016,8 @@ class PMF_Faq
             $html = '';
             foreach ($output as $entry) {
                 $html .= sprintf(
-                    '<li><a href="%s">%s</a></li>',
+                    '<li><a class="sticky-faqs" data-toggle="tooltip" data-placement="top" title="%s" href="%s">%s</a></li>',
+                    $entry['preview'],
                     $entry['url'],
                     $entry['title']
                 );
@@ -3052,9 +3074,9 @@ class PMF_Faq
                 );
             }
         } else {
-            if (-1 === $this->user) {
+            if (-1 !== $this->user) {
                 return sprintf(
-                    "AND fdu.user_id = %d",
+                    "AND ( fdu.user_id = %d OR fdu.user_id = -1 )",
                     $this->user
                 );
             } else {

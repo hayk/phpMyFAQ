@@ -2,7 +2,7 @@
 /**
  * Interface for database drivers
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -12,7 +12,7 @@
  * @package   DB
  * @author    Johannes Schlüter <johannes@php.net>
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2007-2013 phpMyFAQ Team
+ * @copyright 2007-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2007-08-19
@@ -29,7 +29,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
  * @package   DB
  * @author    Johannes Schlüter <johannes@php.net>
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2007-2013 phpMyFAQ Team
+ * @copyright 2007-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2007-08-19
@@ -49,23 +49,15 @@ interface PMF_DB_Driver
     public function connect($host, $user, $password, $db = '');
 
     /**
-     * Connects to a given database
-     *
-     * @param string $database Database name
-     *
-     * @return boolean
-     */
-    public function selectDb($database);
-
-    /**
-     * Sends a query to the database.
-     *
      * This function sends a query to the database.
      *
-     * @param   string $query
+     * @param string  $query
+     * @param integer $offset
+     * @param integer $rowcount
+     *
      * @return  mixed $result
      */
-    public function query($query);
+    public function query($query, $offset = 0, $rowcount = 0);
 
     /**
      * Escapes a string for use in a query

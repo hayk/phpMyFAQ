@@ -1,9 +1,9 @@
 <?php
 /**
  * The PMF_DB_Sqlsrv class provides methods and functions for SQL Server Driver
- * for PHP from Microsoft.
+ * for PHP from Microsoft for Microsoft SQL Server 2012 or later
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -12,7 +12,7 @@
  * @category  phpMyFAQ
  * @package   PMF_Db
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2009-2013 phpMyFAQ Team
+ * @copyright 2009-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2009-02-18
@@ -28,7 +28,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
  * @category  phpMyFAQ
  * @package   PMF_Db
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2009-2013 phpMyFAQ Team
+ * @copyright 2009-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2009-02-18
@@ -54,14 +54,14 @@ class PMF_DB_Sqlsrv implements PMF_DB_Driver
      *
      * @var array
      */
-    private $connectionOptions = array();
+    private $connectionOptions = [];
 
     /**
      * Tables
      *
      * @var array
      */
-    public $tableNames = array();
+    public $tableNames = [];
 
     /**
      * Connects to the database.
@@ -89,18 +89,6 @@ class PMF_DB_Sqlsrv implements PMF_DB_Driver
     }
 
     /**
-     * Connects to a given database
-     *
-     * @param string $database Database name
-     *
-     * @return boolean
-     */
-    public function selectDb($database)
-    {
-        return true;
-    }
-
-    /**
      * Sets the connection options
      *
      * @param  string $user     Specifies the User ID to be used when connecting with SQL Server Authentication
@@ -117,25 +105,35 @@ class PMF_DB_Sqlsrv implements PMF_DB_Driver
            'Database'     => $database,
            'CharacterSet' => 'UTF-8');
     }
-    
+
     /**
-     * Sends a query to the database.
+     * This function sends a query to the database.
      *
-     * @param  string $query Query
-     * @return mixed
+     * @param string  $query
+     * @param integer $offset
+     * @param integer $rowcount
+     *
+     * @return  mixed $result
      */
-    public function query($query)
+    public function query($query, $offset = 0, $rowcount = 0)
     {
         if (DEBUG) {
             $this->sqllog .= PMF_Utils::debug($query);
         }
+
         $options = array('Scrollable' => SQLSRV_CURSOR_KEYSET);
-        $result  = sqlsrv_query($this->conn, $query, array(), $options);
+
+        if (0 < $rowcount) {
+            $query .= sprintf(' OFFSET %d ROWS FETCH NEXT %d ROWS ONLY', $offset, $rowcount);
+        }
+
+        $result  = sqlsrv_query($this->conn, $query, [], $options);
+
         if (!$result) {
             $this->sqllog .= $this->error();
         }
-        return $result;
 
+        return $result;
     }
 
     /**
@@ -182,7 +180,7 @@ class PMF_DB_Sqlsrv implements PMF_DB_Driver
      */
     public function fetchAll($result)
     {
-        $ret = array();
+        $ret = [];
         if (false === $result) {
             throw new Exception('Error while fetching result: ' . $this->error());
         }
@@ -223,7 +221,7 @@ class PMF_DB_Sqlsrv implements PMF_DB_Driver
      */
     public function getTableStatus()
     {
-        $tables = array();
+        $tables = [];
         $query  = "
             SELECT
                 obj.name AS table_name,

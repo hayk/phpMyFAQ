@@ -2,7 +2,7 @@
 /**
  * Helper class for phpMyFAQ categories
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,7 +11,7 @@
  * @category  phpMyFAQ
  * @package   Helper
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2009-2013 phpMyFAQ Team
+ * @copyright 2009-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2009-09-07
@@ -27,7 +27,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
  * @category  phpMyFAQ
  * @package   Helper
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2009-2013 phpMyFAQ Team
+ * @copyright 2009-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2009-09-07
@@ -57,11 +57,12 @@ class PMF_Helper_Category extends PMF_Helper
         $open          = 0;
         $output        = '';
         $numCategories = $this->Category->height();
+        $numFaqs       = $this->Category->getNumberOfRecordsOfCategory();
         
         if ($numCategories > 0) {
             for ($y = 0 ;$y < $numCategories; $y = $this->Category->getNextLineTree($y)) {
                 
-                list($symbol, $name, $categoryId, $description) = $this->Category->getLineDisplay($y);
+                list($hasChild, $name, $categoryId, $description) = $this->Category->getLineDisplay($y);
 
                 if ($activeCategory == $categoryId) {
                     $isActive = true;
@@ -71,6 +72,11 @@ class PMF_Helper_Category extends PMF_Helper
 
                 $level     = $this->Category->treeTab[$y]['level'];
                 $leveldiff = $open - $level;
+
+                if ($this->_config->get('records.hideEmptyCategories') && !isset($numFaqs[$categoryId]) &&
+                    '-' === $hasChild) {
+                    continue;
+                }
 
                 if ($leveldiff > 1) {
                     $output .= '</li>';
@@ -131,6 +137,106 @@ class PMF_Helper_Category extends PMF_Helper
                 $output .= str_repeat("</li>\n\t</ul>\n\t", $open);
             }
             $output .= "</li>";
+            return $output;
+
+        } else {
+            $output = '<li><a href="#">'.$PMF_LANG['no_cats'].'</a></li>';
+        }
+        return $output;
+    }
+
+    /**
+     * Renders the main navigation dropdown
+     *
+     * @return string
+     */
+    public function renderCategoryDropDown()
+    {
+
+        global $sids, $PMF_LANG;
+
+        $open          = 0;
+        $output        = '';
+        $numCategories = $this->Category->height();
+
+        $this->Category->expandAll();
+
+        if ($numCategories > 0) {
+
+            for ($y = 0 ;$y < $this->Category->height(); $y = $this->Category->getNextLineTree($y)) {
+
+                list($hasChild, $categoryName, $parent, $description) = $this->Category->getLineDisplay($y);
+                $level     = $this->Category->treeTab[$y]['level'];
+                $leveldiff = $open - $level;
+                $numChilds = $this->Category->treeTab[$y]['numChilds'];
+
+                if (!isset($number[$parent])) {
+                    $number[$parent] = 0;
+                }
+
+                if ($this->_config->get('records.hideEmptyCategories') && 0 === $number[$parent] && '-' === $hasChild) {
+                    continue;
+                }
+
+                if ($leveldiff > 1) {
+                    $output .= '</li>';
+                    for ($i = $leveldiff; $i > 1; $i--) {
+                        $output .= sprintf("\n%s</ul>\n%s</li>\n",
+                            str_repeat("\t", $level + $i + 1),
+                            str_repeat("\t", $level + $i));
+                    }
+                }
+
+                if ($level < $open) {
+                    if (($level - $open) == -1) {
+                        $output .= '</li>';
+                    }
+                    $output .= sprintf("\n%s</ul>\n%s</li>\n",
+                        str_repeat("\t", $level + 2),
+                        str_repeat("\t", $level + 1));
+                } elseif ($level == $open && $y != 0) {
+                    $output .= "</li>\n";
+                }
+
+                if ($level > $open) {
+                    $output .= sprintf(
+                        "\n%s<ul class=\"dropdown-menu\">\n%s",
+                        str_repeat("\t", $level + 1),
+                        str_repeat("\t", $level + 1)
+                    );
+                    if ($numChilds > 0) {
+                        $output .= '<li class="dropdown-submenu">';
+                    } else {
+                        $output .= '<li>';
+                    }
+                } else {
+                    $output .= str_repeat("\t", $level + 1);
+                    if ($numChilds > 0) {
+                        $output .= '<li class="dropdown-submenu">';
+                    } else {
+                        $output .= '<li>';
+                    }
+                }
+
+                $url = sprintf(
+                    '%s?%saction=show&amp;cat=%d',
+                    PMF_Link::getSystemRelativeUri(),
+                    $sids,
+                    $parent
+                );
+                $oLink            = new PMF_Link($url, $this->_config);
+                $oLink->itemTitle = $categoryName;
+                $oLink->text      = $categoryName;
+                $oLink->tooltip   = $description;
+
+                $output .= $oLink->toHtmlAnchor();
+                $open    = $level;
+            }
+
+            if (isset($level) && $level > 0) {
+                $output .= str_repeat("</li>\n\t</ul>\n\t", $level);
+            }
+
             return $output;
 
         } else {

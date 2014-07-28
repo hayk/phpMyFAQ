@@ -2,7 +2,7 @@
 /**
  * Shows the page with the FAQ record and - when available - the user comments
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -12,14 +12,18 @@
  * @package   Frontend
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Lars Tiedemann <larstiedemann@yahoo.de>
- * @copyright 2002-2013 phpMyFAQ Team
+ * @copyright 2002-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2002-08-27
  */
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
@@ -45,9 +49,8 @@ if (!is_null($showCaptcha)) {
 
 $currentCategory = $cat;
 
-$recordId       = PMF_Filter::filterInput(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-$solutionId     = PMF_Filter::filterInput(INPUT_GET, 'solution_id', FILTER_VALIDATE_INT);
-$highlight      = PMF_Filter::filterInput(INPUT_GET, 'highlight', FILTER_SANITIZE_STRIPPED);
+$recordId   = PMF_Filter::filterInput(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$solutionId = PMF_Filter::filterInput(INPUT_GET, 'solution_id', FILTER_VALIDATE_INT);
 
 // Get all data from the FAQ record
 if (0 == $solutionId) {
@@ -57,13 +60,17 @@ if (0 == $solutionId) {
 }
 $recordId = $faq->faqRecord['id'];
 
-$faqsession->userTracking('article_view', $recordId);
+try {
+    $faqsession->userTracking('article_view', $recordId);
+} catch (PMF_Exception $e) {
+    // @todo handle the exception
+}
 
 $faqVisits = new PMF_Visits($faqConfig);
 $faqVisits->logViews($recordId);
 
-// Add Glossary entries
-$question = $oGlossary->insertItemsIntoContent($faq->getRecordTitle($recordId));
+// Add Glossary entries for answers only
+$question = $faq->getRecordTitle($recordId);
 $answer   = $oGlossary->insertItemsIntoContent($faq->faqRecord['content']);
 
 // Set the path of the current category
@@ -89,8 +96,8 @@ if (!is_null($highlight) && $highlight != "/" && $highlight != "<" && $highlight
     $searchItems = explode(' ', $highlight);
 
     foreach ($searchItems as $item) {
-        $question   = PMF_Utils::setHighlightedString($question, $item);
-        $answer = PMF_Utils::setHighlightedString($answer, $item);
+        $question = PMF_Utils::setHighlightedString($question, $item);
+        $answer   = PMF_Utils::setHighlightedString($answer, $item);
     }
 }
 
@@ -117,7 +124,7 @@ if (isset($linkArray['href'])) {
         $xpos = strpos($_url, 'index.php?action=artikel');
         if (!($xpos === false)) {
             // Get the Faq link title
-            $matches = array();
+            $matches = [];
             preg_match('/id=([\d]+)/ism', $_url, $matches);
             $_id    = $matches[1];
             $_title = $faq->getRecordTitle($_id, false);
@@ -145,7 +152,7 @@ if (count($arrLanguage) > 1) {
         $check4Lang .= ($lang == $language ? ' selected="selected"' : '');
         $check4Lang .= ">".$languageCodes[strtoupper($language)]."</option>\n";
     }
-    $switchLanguage .= "<form action=\"".$changeLanguagePath."\" method=\"post\" style=\"display: inline;\">\n";
+    $switchLanguage .= "<form accept-charset=\"utf-8\" action=\"".$changeLanguagePath."\" method=\"post\" style=\"display: inline;\">\n";
     $switchLanguage .= "<select name=\"artlang\" size=\"1\">\n";
     $switchLanguage .= $check4Lang;
     $switchLanguage .= "</select>\n";
@@ -197,7 +204,7 @@ $relatedFaqs  = $searchHelper->renderRelatedFaqs($faqSearchResult, $recordId);
 
 // Show link to edit the faq?
 $editThisEntry = '';
-if (isset($permission['editbt']) && $permission['editbt']) {
+if ($user->perm->checkRight($user->getUserId(), 'editbt')) {
     $editThisEntry = sprintf(
         '<a href="%sadmin/index.php?action=editentry&amp;id=%d&amp;lang=%s">%s</a>',
         PMF_Link::getSystemRelativeUri('index.php'),
@@ -211,7 +218,8 @@ if (isset($permission['editbt']) && $permission['editbt']) {
 $expired = (date('YmdHis') > $faq->faqRecord['dateEnd']);
 
 // Does the user have the right to add a comment?
-if (($faq->faqRecord['active'] != 'yes') || ('n' == $faq->faqRecord['comment']) || $expired) {
+if ((-1 === $user->getUserId() && !$faqConfig->get('records.allowCommentsForGuests')) ||
+    ($faq->faqRecord['active'] === 'no') || ('n' == $faq->faqRecord['comment']) || $expired) {
     $commentMessage = $PMF_LANG['msgWriteNoComment'];
 } else {
     $commentMessage = sprintf(
@@ -242,7 +250,7 @@ if (!empty($switchLanguage)) {
     );
 }
 
-if (isset($permission['addtranslation']) && $permission['addtranslation']) {
+if ($user->perm->checkRight($user->getUserId(), 'addtranslation')) {
     $tpl->parseBlock(
         'writeContent',
         'addTranslation',
@@ -290,6 +298,7 @@ $captchaHelper = new PMF_Helper_Captcha($faqConfig);
 $tpl->parse(
     'writeContent',
     array(
+        'baseHref'                   => $faqSystem->getSystemUri($faqConfig),
         'writeRubrik'                => $categoryName,
         'solution_id'                => $faq->faqRecord['solution_id'],
         'solution_id_link'           => PMF_Link::getSystemRelativeUri() . '?solution_id=' . $faq->faqRecord['solution_id'],

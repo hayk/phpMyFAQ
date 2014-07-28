@@ -2,7 +2,7 @@
 /**
  * Norwegian Bokmål language file
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,7 +11,7 @@
  * @category  phpMyFAQ
  * @package   Translation
  * @author    Hans Fredrik Nordhaug <hans@nordhaug.priv.no>
- * @copyright 2005-2013 phpMyFAQ Team
+ * @copyright 2005-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2005-08-31
@@ -565,7 +565,7 @@ $PMF_LANG['ad_export_gen_docbook'] = 'Lag en Docbook fil';
 $PMF_LANG['ad_news_data'] = 'Nyhetsdata';
 $PMF_LANG['ad_news_author_name'] = 'Forfatter:';
 $PMF_LANG['ad_news_author_email'] = 'Forfatterens e-post:';
-$PMF_LANG['ad_news_set_active'] = 'Aktiver:';
+$PMF_LANG['ad_news_set_active'] = 'Aktiver';
 $PMF_LANG['ad_news_allowComments'] = 'Tillat kommentarer:';
 $PMF_LANG['ad_news_expiration_window'] = '"Nyhet utløper"-tidsvindu (valgfritt)';
 $PMF_LANG['ad_news_from'] = 'Fra:';

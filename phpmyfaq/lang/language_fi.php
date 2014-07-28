@@ -9,7 +9,7 @@
  * @author      Petteri Hirvonen <petteri.hirvonen@eventusmedia.fi>
  * @author      Niklas Lampén <niklas.lampen@eventusmedia.fi>
  * @since       2004-02-19
- * @copyright   (c) 2006-2013 phpMyFAQ Team
+ * @copyright   (c) 2006-2014 phpMyFAQ Team
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -596,7 +596,7 @@ $PMF_LANG['ad_export_gen_xhtml'] = 'luo XHTML-tiedosto';
 $PMF_LANG['ad_news_data'] = 'Uutisen tiedot';
 $PMF_LANG['ad_news_author_name'] = 'Kirjoittajan nimi:';
 $PMF_LANG['ad_news_author_email'] = 'Kirjoittajan sähköpostiosoite:';
-$PMF_LANG['ad_news_set_active'] = 'Aktivoi:';
+$PMF_LANG['ad_news_set_active'] = 'Aktivoi';
 $PMF_LANG['ad_news_allowComments'] = 'Salli kommentit:';
 $PMF_LANG['ad_news_expiration_window'] = 'Uutisen ajastus (valinnainen)';
 $PMF_LANG['ad_news_from'] = 'Alkaa:';

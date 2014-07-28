@@ -2,7 +2,7 @@
 /**
  * The Alovak language file
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -715,7 +715,7 @@ $PMF_LANG['ad_export_gen_docbook'] = 'Vytvoriť Docbook súbor';
 $PMF_LANG['ad_news_data'] = 'Dáta noviniek';
 $PMF_LANG['ad_news_author_name'] = 'Meno autora:';
 $PMF_LANG['ad_news_author_email'] = 'E-mail autora:';
-$PMF_LANG['ad_news_set_active'] = 'Aktivovať:';
+$PMF_LANG['ad_news_set_active'] = 'Aktivovať';
 $PMF_LANG['ad_news_allowComments'] = 'Povoliť komentáre:';
 $PMF_LANG['ad_news_expiration_window'] = 'Okno pre zobrazenie doby platnosti noviniek (voliteľné)';
 $PMF_LANG['ad_news_from'] = 'Od:';

@@ -2,7 +2,7 @@
 /**
  * CREATE TABLE instruction for MySQL database
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,7 @@
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Tom Rochester <tom.rochester@gmail.com>
  * @author    Lars Tiedemann <php@larstiedemann.de>
- * @copyright 2004-2013 phpMyFAQ Team
+ * @copyright 2004-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2004-09-18
@@ -60,7 +60,7 @@ $query[] = "CREATE TABLE ".$sqltblpre."faqadminlog (
 id int(11) NOT NULL,
 time int(11) NOT NULL,
 usr int(11) NOT NULL,
-text text NOT NULL,
+`text` text NOT NULL,
 ip text NOT NULL,
 PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci";
 
@@ -334,6 +334,7 @@ last_login VARCHAR(14) NULL,
 auth_source VARCHAR(100) NULL,
 member_since VARCHAR(14) NULL,
 remember_me VARCHAR(150) NULL,
+success INT(1) NULL DEFAULT 1,
 PRIMARY KEY (user_id),
 UNIQUE INDEX session(session_id),
 UNIQUE INDEX login(login)) DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci";
@@ -343,7 +344,8 @@ $query[] = "CREATE TABLE ".$sqltblpre."faquserdata (
 user_id INT(11) NOT NULL,
 last_modified VARCHAR(14) NULL,
 display_name VARCHAR(50) NULL,
-email VARCHAR(100) NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci";
+email VARCHAR(100) NULL,
+PRIMARY KEY (user_id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci";
 
 //faquserlogin
 $query[] = "CREATE TABLE ".$sqltblpre."faquserlogin (

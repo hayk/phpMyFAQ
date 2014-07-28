@@ -2,7 +2,7 @@
 /**
  * Polish language file
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,7 @@
  * @author    Krzysztof Kudłacik <null@adres.pl>
  * @author    Sławomir Małusecki <mori@online-rpg.pl>
  * @author    Dariusz Grzesista  <darek@linux.rybnik.pl>
- * @copyright 2004-2013 phpMyFAQ Team
+ * @copyright 2004-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2004-06-24
@@ -656,7 +656,7 @@ $PMF_LANG['ad_news_expiration_window'] = 'Ważność newsa (opcjonalnie)';
 $PMF_LANG['ad_news_from'] = 'Od:';
 $PMF_LANG['ad_news_insertfail'] = 'Podczas dodawania newsa do bazy danych wystąpił błąd.';
 $PMF_LANG['ad_news_link_parent'] = 'Łącze otwiera się w oknie wywołującym';
-$PMF_LANG['ad_news_set_active'] = 'News aktywny:';
+$PMF_LANG['ad_news_set_active'] = 'News aktywny';
 $PMF_LANG['ad_news_to'] = 'Do:';
 $PMF_LANG['ad_news_updatefail'] = 'Aktualizacja newsa w bazie danych zakończyła się niepowodzeniem.';
 $PMF_LANG['ad_online_info'] = 'Sprawdzanie wersji on-line';

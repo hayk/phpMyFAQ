@@ -2,7 +2,7 @@
 /**
  * PDF export
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -15,7 +15,7 @@
  * @author    Olivier Plathey <olivier@fpdf.org>
  * @author    Krzysztof Kruszynski <thywolf@wolf.homelinux.net>
  * @author    Matteo Scaramuccia <matteo@phpmyfaq.de>
- * @copyright 2003-2013 phpMyFAQ Team
+ * @copyright 2003-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2003-02-12
@@ -63,22 +63,6 @@ if ($user) {
     $user = null;
 }
 
-// Get current user rights
-$permission = array();
-if (isset($auth)) {
-    // read all rights, set them FALSE
-    $allRights = $user->perm->getAllRightsData();
-    foreach ($allRights as $right) {
-        $permission[$right['name']] = false;
-    }
-    // check user rights, set them TRUE
-    $allUserRights = $user->perm->getAllUserRights($user->getUserId());
-    foreach ($allRights as $right) {
-        if (in_array($right['right_id'], $allUserRights))
-            $permission[$right['name']] = true;
-    }
-}
-
 // Get current user and group id - default: -1
 if (!is_null($user) && $user instanceof PMF_User_CurrentUser) {
     $current_user   = $user->getUserId();
@@ -115,13 +99,18 @@ $tags = new PMF_Tags($faqConfig);
 
 session_cache_limiter('private');
 
-if (true === $getAll && $permission['export']) {
+if (true === $getAll && $user->perm->checkRight($user->getUserId(), 'export')) {
     $filename = 'FAQs.pdf';
     $pdfFile  = $pdf->generate(0, true, $lang);
 } elseif (is_null($currentCategory) || is_null($id)) {
     Response::create('Wrong HTTP GET parameters values.', 403)->send();
     exit;
 } else {
+    if (is_null($currentCategory) || is_null($id)) {
+        $http->redirect($faqConfig->get('main.referenceURL'));
+        exit();
+    }
+
     $faq->getRecord($id);
     $faq->faqRecord['category_id'] = $currentCategory;
 
@@ -136,8 +125,8 @@ $response->headers->set('Cache-Control', 'must-revalidate, post-check=0, pre-che
 $response->headers->set('Content-type', 'application/pdf');
 
 if (preg_match("/MSIE/i", $_SERVER["HTTP_USER_AGENT"])) {
-	$response->headers->set('Content-Transfer-Encoding', 'binary');
-	$response->headers->set('Content-Disposition', 'attachment; filename=' . $filename);
+    $response->headers->set('Content-Transfer-Encoding', 'binary');
+    $response->headers->set('Content-Disposition', 'attachment; filename=' . $filename);
 }
 
 $response->send();

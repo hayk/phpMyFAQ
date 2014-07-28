@@ -2,16 +2,16 @@
 /**
  * Class for checking system requirements
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
  * obtain one at http://mozilla.org/MPL/2.0/.
  *
- * @category  phpMyFAQ 
+ * @category  phpMyFAQ
  * @package   PMF_System
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2010-2013 phpMyFAQ Team
+ * @copyright 2010-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2010-01-13
@@ -20,10 +20,10 @@
 /**
  * PMF_System
  *
- * @category  phpMyFAQ 
+ * @category  phpMyFAQ
  * @package   PMF_System
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2010-2013 phpMyFAQ Team
+ * @copyright 2010-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2010-01-13
@@ -53,7 +53,7 @@ class PMF_System
     /**
      * API version
      */
-    const VERSION_API = 1;
+    const VERSION_API = 2;
 
     /**
      * Minimum required PHP version
@@ -78,7 +78,7 @@ class PMF_System
      *
      * @var array
      */
-    private $_missingExtensions = array();
+    private $_missingExtensions = [];
 
     /**
      * Supported databases for phpMyFAQ.
@@ -86,11 +86,13 @@ class PMF_System
      * @var  array
      */
     private $_supportedDatabases = array(
-        'mysqli'  => 'MySQL 5.x, MariaDB 5.x (ext/mysqli)',
-        'pgsql'   => 'PostgreSQL 8.x',
-        'sqlite'  => 'SQLite',
-        'sqlite3' => 'SQLite 3 (experimental)',
-        'sqlsrv'  => 'MS SQL Server Driver for PHP'
+        'mysqli'    => 'MySQL 5.x / Percona Server 5.x / MariaDB 5.x',
+        'pdo_mysql' => 'MySQL 5.x / Percona Server 5.x / MariaDB 5.x (PDO_MYSQL, experimental)',
+        'pgsql'     => 'PostgreSQL 9.x',
+        'sqlite'    => 'SQLite (deprecated)',
+        'sqlite3'   => 'SQLite 3 (experimental)',
+        'mssql'     => 'MS SQL Server 2012 and later (deprecated)',
+        'sqlsrv'    => 'MS SQL Server 2012 Driver for PHP'
     );
 
     /**
@@ -150,12 +152,12 @@ class PMF_System
      */
     public function getAvailableTemplates()
     {
-        $templates = array();
+        $templates = [];
 
         foreach (new DirectoryIterator(PMF_ROOT_DIR . '/assets/template') as $item) {
-
+            $basename = $item->getBasename();
             if (! $item->isDot() && $item->isDir()) {
-                $templates[$item->getBasename()] = (PMF_Template::getTplSetName() == $item->getBasename() ? true : false);
+                $templates[$basename] = (PMF_Template::getTplSetName() === $basename ? true : false);
             }
         }
 
@@ -191,7 +193,7 @@ class PMF_System
      */
     public function getSupportedSafeDatabases($html = false)
     {
-        $retVal = array();
+        $retVal = [];
         foreach ($this->getSupportedDatabases() as $extension => $database) {
             if (extension_loaded($extension)) {
                 // prevent MySQLi with zend.ze1_compatibility_mode enabled due to a few cloning isssues
@@ -209,6 +211,30 @@ class PMF_System
     }
 
     /**
+     * Checks if the system URI is running with http or https
+     *
+     * @param PMF_Configuration $faqConfig
+     *
+     * @return mixed
+     */
+    public function getSystemUri(PMF_Configuration $faqConfig)
+    {
+        $mainUrl = $faqConfig->get('main.referenceURL');
+
+        if (isset($_ENV['REQUEST_SCHEME']) && 'https' === $_ENV['REQUEST_SCHEME']) {
+            if (false === strpos($mainUrl, 'https')) {
+                $mainUrl = str_replace('http://', 'https://', $mainUrl);
+            }
+        }
+
+        if ('/' !== substr($mainUrl, -1)) {
+            $mainUrl .= '/';
+        }
+
+        return $mainUrl;
+    }
+
+    /**
      * Checks for installed database extensions, if the first supported
      * extension is enabled, return true.
      *
@@ -217,14 +243,14 @@ class PMF_System
     public function checkDatabase()
     {
         foreach ($this->_supportedDatabases as $extension => $database) {
-            if (extension_loaded ($extension)) {
+            if (extension_loaded($extension)) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Checks for required PHP extensions
      *
@@ -233,15 +259,15 @@ class PMF_System
     public function checkRequiredExtensions()
     {
         foreach ($this->_requiredExtensions as $extension) {
-            if (!extension_loaded ( $extension)) {
+            if (!extension_loaded($extension)) {
                 $this->_missingExtensions[] = $extension;
             }
         }
-        
+
         if (count($this->_missingExtensions) > 0) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -287,7 +313,7 @@ class PMF_System
             return true;
         }
     }
-    
+
     /**
      * Returns all missing extensions
      *
@@ -410,7 +436,7 @@ class PMF_System
             );
         }
         printf(
-            '</div></div></section><footer><div class="container"><p class="pull-right">%s</p><div></footer></body></html>',
+            '</div></section><footer><div class="container"><p class="pull-right">%s</p><div></footer></body></html>',
             COPYRIGHT
         );
         exit(-1);

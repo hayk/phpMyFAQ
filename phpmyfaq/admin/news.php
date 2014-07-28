@@ -2,7 +2,7 @@
 /**
  * The main administration file for the news.
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -12,20 +12,24 @@
  * @package   Administration
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Matteo Scaramuccia <matteo@phpmyfaq.de>
- * @copyright 2003-2013 phpMyFAQ Team
+ * @copyright 2003-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2003-02-23
  */
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
 $news = new PMF_News($faqConfig);
 
-if ('addnews' == $action && $permission["addnews"]) {
+if ('addnews' == $action && $user->perm->checkRight($user->getUserId(), "addnews")) {
     $twig->loadTemplate('news/add.twig')
         ->display(
             array(
@@ -35,7 +39,8 @@ if ('addnews' == $action && $permission["addnews"]) {
                 'userEmail'        => $user->getUserData('email')
             )
         );
-} elseif ('news' == $action && $permission["editnews"]) {
+
+} elseif ('news' == $action && $user->perm->checkRight($user->getUserId(), "editnews")) {
     $date       = new PMF_Date($faqConfig);
     $newsHeader = $news->getNewsHeader();
     foreach($newsHeader as $key => $newsItem) {
@@ -51,7 +56,7 @@ if ('addnews' == $action && $permission["addnews"]) {
         );
 
     unset($date, $newsHeader, $key, $newsItem);
-} elseif ('editnews' == $action && $permission['editnews']) {
+} elseif ('editnews' == $action && $user->perm->checkRight($user->getUserId(), 'editnews')) {
     $id       = PMF_Filter::filterInput(INPUT_GET, 'id', FILTER_VALIDATE_INT);
     $newsData = $news->getNewsEntry($id, true);
     $dateStart = ($newsData['dateStart'] != '00000000000000' ? PMF_Date::createIsoDate($newsData['dateStart'], 'Y-m-d') : '');
@@ -76,7 +81,8 @@ if ('addnews' == $action && $permission["addnews"]) {
                 'newsData' => $newsData
             )
         );
-} elseif ('savenews' == $action && $permission["addnews"]) {
+} elseif ('savenews' == $action && $user->perm->checkRight($user->getUserId(), "addnews")) {
+
     $dateStart = PMF_Filter::filterInput(INPUT_POST, 'dateStart', FILTER_SANITIZE_STRING);
     $dateEnd   = PMF_Filter::filterInput(INPUT_POST, 'dateEnd', FILTER_SANITIZE_STRING);
     $header    = PMF_Filter::filterInput(INPUT_POST, 'newsheader', FILTER_SANITIZE_STRIPPED);
@@ -115,7 +121,8 @@ if ('addnews' == $action && $permission["addnews"]) {
                 'success'  => $success
             )
         );
-} elseif ('updatenews' == $action && $permission["editnews"]) {
+} elseif ('updatenews' == $action && $user->perm->checkRight($user->getUserId(), "editnews")) {
+
     $dateStart = PMF_Filter::filterInput(INPUT_POST, 'dateStart', FILTER_SANITIZE_STRING);
     $dateEnd   = PMF_Filter::filterInput(INPUT_POST, 'dateEnd', FILTER_SANITIZE_STRING);
     $header    = PMF_Filter::filterInput(INPUT_POST, 'newsheader', FILTER_SANITIZE_STRIPPED);
@@ -155,7 +162,8 @@ if ('addnews' == $action && $permission["addnews"]) {
                 'success'  => $success
             )
         );
-} elseif ('deletenews' == $action && $permission["delnews"]) {
+} elseif ('deletenews' == $action && $user->perm->checkRight($user->getUserId(), "delnews")) {
+
     $precheck  = PMF_Filter::filterInput(INPUT_POST, 'really', FILTER_SANITIZE_STRING, 'no');
     $delete_id = PMF_Filter::filterInput(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
@@ -167,6 +175,7 @@ if ('addnews' == $action && $permission["addnews"]) {
                     'deleteId' => $delete_id
                 )
             );
+
     } else {
         $delete_id = PMF_Filter::filterInput(INPUT_POST, 'id', FILTER_VALIDATE_INT);
         $news->deleteNews($delete_id);

@@ -12,7 +12,7 @@
  * @package   Administration
  * @author    Anatoliy Belsky <ab@php.net>
  * @author    Alexander Melnik <old@km.ua>
- * @copyright 2009-2013 phpMyFAQ Team
+ * @copyright 2009-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2009-05-12
@@ -21,14 +21,18 @@
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
 $response = new JsonResponse;
 $ajax_action = PMF_Filter::filterInput(INPUT_GET, 'ajaxaction', FILTER_SANITIZE_STRING);
 
-switch($ajax_action) {
+switch ($ajax_action) {
     
     case 'save_page_buffer':
         /**
@@ -66,7 +70,7 @@ switch($ajax_action) {
                 // in an array $valArr contents like  "number substring", "substring", "number substring", "substring", ...
                 $numVal = count($valArr);
                 if ($numVal > 1) {
-                    $newValArr = array();
+                    $newValArr = [];
                     for ($i = 0; $i < $numVal; $i += 2) {
                         if (is_numeric($valArr[$i])) {
                             // clearing quotes
@@ -94,13 +98,13 @@ switch($ajax_action) {
     
     case 'save_translated_lang':
         
-        if (!$permission["edittranslation"]) {
+        if (!$user->perm->checkRight($user->getUserId(), 'edittranslation')) {
             $response->setData($PMF_LANG['err_NotAuth']);
             break;
         }
         
-        $lang     = $_SESSION['trans']['rightVarsOnly']["PMF_LANG[metaLanguage]"];
-        $filename = PMF_ROOT_DIR . "/lang/language_$lang.php"; 
+        $lang     = strtolower($_SESSION['trans']['rightVarsOnly']["PMF_LANG[metaLanguage]"]);
+        $filename = PMF_ROOT_DIR . "/lang/language_" . $lang . ".php";
         
         if (!is_writable(PMF_ROOT_DIR . "/lang")) {
             $response->setData(0);
@@ -113,11 +117,9 @@ switch($ajax_action) {
         }
         
         $newFileContents = '';
-        $tmpLines        = array();
+        $tmpLines        = [];
         
-        /**
-         * Read in the head of the file we're writing to
-         */
+        // Read in the head of the file we're writing to
         $fh = fopen($filename, 'r');
         do {
             $line = fgets($fh);
@@ -126,9 +128,7 @@ switch($ajax_action) {
         while ('*/' != substr(trim($line), -2));
         fclose($fh);
        
-        /**
-         * Construct lines with variable definitions
-         */
+        // Construct lines with variable definitions
         foreach ($_SESSION['trans']['rightVarsOnly'] as $key => $val) {
             if (0 === strpos($key, 'PMF_LANG')) {
                 $val = "'$val'";
@@ -146,7 +146,7 @@ switch($ajax_action) {
     
     case 'remove_lang_file':
         
-        if (!$permission['deltranslation']) {
+        if (!$user->perm->checkRight($user->getUserId(), 'deltranslation')) {
             $response->setData($PMF_LANG['err_NotAuth']);
             break;
         }
@@ -173,7 +173,7 @@ switch($ajax_action) {
     
     case 'save_added_trans':
         
-        if (!$permission["addtranslation"]) {
+        if (!$user->perm->checkRight($user->getUserId(), 'addtranslation')) {
             $response->setData($PMF_LANG['err_NotAuth']);
             break;
         }        
@@ -202,7 +202,7 @@ switch($ajax_action) {
 /**
  * %s
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -210,7 +210,7 @@ switch($ajax_action) {
  *
  * @category  phpMyFAQ
  * @package   i18n
-%s * @copyright  2004-%d phpMyFAQ Team
+%s * @copyright  2001-%d phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since      %s

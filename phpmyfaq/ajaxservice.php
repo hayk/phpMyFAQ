@@ -2,7 +2,7 @@
 /**
  * The Ajax Service Layer
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,7 +11,7 @@
  * @category  phpMyFAQ
  * @package   Ajax 
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2010-2013 phpMyFAQ Team
+ * @copyright 2010-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2010-09-15
@@ -28,9 +28,10 @@ define('IS_VALID_PHPMYFAQ', null);
 //
 require 'inc/Bootstrap.php';
 
-$action   = PMF_Filter::filterInput(INPUT_GET, 'action', FILTER_SANITIZE_STRING);
-$ajaxlang = PMF_Filter::filterInput(INPUT_POST, 'lang', FILTER_SANITIZE_STRING);
-$code     = PMF_Filter::filterInput(INPUT_POST, 'captcha', FILTER_SANITIZE_STRING);
+$action       = PMF_Filter::filterInput(INPUT_GET, 'action', FILTER_SANITIZE_STRING);
+$ajaxlang     = PMF_Filter::filterInput(INPUT_POST, 'lang', FILTER_SANITIZE_STRING);
+$code         = PMF_Filter::filterInput(INPUT_POST, 'captcha', FILTER_SANITIZE_STRING);
+$currentToken = PMF_Filter::filterInput(INPUT_POST, 'csrf', FILTER_SANITIZE_STRING);
 
 $Language     = new PMF_Language($faqConfig);
 $languageCode = $Language->setLanguage($faqConfig->get('main.languageDetection'), $faqConfig->get('main.language'));
@@ -55,7 +56,9 @@ PMF_String::init($languageCode);
 
 // Check captcha
 $captcha = new PMF_Captcha($faqConfig);
-$captcha->setSessionId($sids);
+$captcha->setSessionId(
+    PMF_Filter::filterInput(INPUT_COOKIE, PMF_Session::PMF_COOKIE_NAME_SESSIONID, FILTER_VALIDATE_INT)
+);
 
 // Prepare response
 $response = new JsonResponse;
@@ -95,7 +98,11 @@ switch ($action) {
     // Comments
     case 'savecomment':
 
-        // @todo add check on "addcomment" permission
+        if (!$faqConfig->get('records.allowCommentsForGuests') &&
+            $user->perm->checkRight($user->getUserId(), 'addcomment')) {
+            $message = array('error' => $PMF_LANG['err_NotAuth']);
+            break;
+        }
 
         $faq      = new PMF_Faq($faqConfig);
         $oComment = new PMF_Comment($faqConfig);
@@ -123,7 +130,12 @@ switch ($action) {
         if (!is_null($username) && !empty($username) && !empty($mail) && !is_null($mail) && !is_null($comment) &&
             !empty($comment) && $stopwords->checkBannedWord($comment) && !$faq->commentDisabled($id, $languageCode, $type)) {
 
-            $faqsession->userTracking("save_comment", $id);
+            try {
+                $faqsession->userTracking('save_comment', $id);
+            } catch (PMF_Exception $e) {
+                // @todo handle the exception
+            }
+
             $commentData = array(
                 'record_id' => $id,
                 'type'      => $type,
@@ -175,7 +187,7 @@ switch ($action) {
                     "\n\n" .
                     wordwrap($comment, 72);
 
-                $send = array();
+                $send = [];
                 $mail = new PMF_Mail($faqConfig);
                 $mail->setReplyTo($commentData['usermail'], $commentData['username']);
                 $mail->addTo($emailTo);
@@ -188,7 +200,7 @@ switch ($action) {
                 }
 
                 // Let the category owner get a copy of the message
-                $category   = new PMF_Category($faqConfig);
+                $category   = new PMF_Category($faqConfig, $current_groups);
                 $categories = $category->getCategoryIdsFromArticle($faq->faqRecord['id']);
                 foreach ($categories as $_category) {
                     $userId = $category->getCategoryUser($_category);
@@ -211,7 +223,11 @@ switch ($action) {
 
                 $message = array('success' => $PMF_LANG['msgCommentThanks']);
             } else {
-                $faqsession->userTracking('error_save_comment', $id);
+                try {
+                    $faqsession->userTracking('error_save_comment', $id);
+                } catch (PMF_Exception $e) {
+                    // @todo handle the exception
+                }
                 $message = array('error' => $PMF_LANG['err_SaveComment']);
             }
         } else {
@@ -221,7 +237,12 @@ switch ($action) {
 
     case 'savefaq':
 
-        // @todo add check on "addfaq" permission
+        if (!$faqConfig->get('records.allowNewFaqsForGuests') &&
+            $user->perm->checkRight($user->getUserId(), 'addfaq')) {
+            $message = array('error' => $PMF_LANG['err_NotAuth']);
+            break;
+        }
+
 
         $faq         = new PMF_Faq($faqConfig);
         $category    = new PMF_Category($faqConfig);
@@ -256,17 +277,25 @@ switch ($action) {
         }
 
         if (!is_null($name) && !empty($name) && !is_null($email) && !empty($email) &&
-            !is_null($question) && !empty($question) && $stopwords->checkBannedWord(PMF_String::htmlspecialchars($question)) &&
-            !is_null($answer) && !empty($answer) && $stopwords->checkBannedWord(PMF_String::htmlspecialchars($answer)) &&
+            !is_null($question) && !empty($question) && $stopwords->checkBannedWord(strip_tags($question)) &&
+            !is_null($answer) && !empty($answer) && $stopwords->checkBannedWord(strip_tags($answer)) &&
             ((is_null($faqid) && !is_null($categories['rubrik'])) || (!is_null($faqid) && !is_null($faqlanguage) &&
             PMF_Language::isASupportedLanguage($faqlanguage)))) {
 
             $isNew = true;
             if (!is_null($faqid)) {
                 $isNew = false;
-                $faqsession->userTracking('save_new_translation_entry', 0);
+                try {
+                    $faqsession->userTracking('save_new_translation_entry', 0);
+                } catch (PMF_Exception $e) {
+                    // @todo handle the exception
+                }
             } else {
-                $faqsession->userTracking('save_new_entry', 0);
+                try {
+                    $faqsession->userTracking('save_new_entry', 0);
+                } catch (PMF_Exception $e) {
+                    // @todo handle the exception
+                }
             }
 
             $isTranslation = false;
@@ -339,7 +368,7 @@ switch ($action) {
             }
 
             // Let the PMF Administrator and the Category Owner to be informed by email of this new entry
-            $send = array();
+            $send = [];
             $mail = new PMF_Mail($faqConfig);
             $mail->setReplyTo($email, $name);
             $mail->addTo($faqConfig->get('main.administrationMail'));
@@ -383,7 +412,11 @@ switch ($action) {
 
     case 'savequestion':
 
-        // @todo add check on "addquestion" permission
+        if (!$faqConfig->get('records.allowQuestionsForGuests') &&
+            $user->perm->checkRight($user->getUserId(), 'addquestion')) {
+            $message = array('error' => $PMF_LANG['err_NotAuth']);
+            break;
+        }
 
         $faq        = new PMF_Faq($faqConfig);
         $cat        = new PMF_Category($faqConfig);
@@ -423,8 +456,8 @@ switch ($action) {
                 $user            = new PMF_User_CurrentUser($faqConfig);
                 $faqSearch       = new PMF_Search($faqConfig);
                 $faqSearchResult = new PMF_Search_Resultset($user, $faq, $faqConfig);
-                $searchResult    = array();
-                $mergedResult    = array();
+                $searchResult    = [];
+                $mergedResult    = [];
 
                 foreach ($cleanQuestion as $word) {
                     $searchResult[] = $faqSearch->search($word);
@@ -542,7 +575,7 @@ switch ($action) {
         if (!is_null($loginname) && !empty($loginname) && !is_null($email) && !empty($email) &&
             !is_null($realname) && !empty($realname)) {
 
-            $message = array();
+            $message = [];
             $user    = new PMF_User($faqConfig);
 
             // Create user account (login and password)
@@ -594,7 +627,12 @@ switch ($action) {
         $userIp   = PMF_Filter::filterVar($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
 
         if (isset($vote) && $faq->votingCheck($recordId, $userIp) && $vote > 0 && $vote < 6) {
-            $faqsession->userTracking('save_voting', $recordId);
+
+            try {
+                $faqsession->userTracking('save_voting', $recordId);
+            } catch (PMF_Exception $e) {
+                // @todo handle the exception
+            }
 
             $votingData = array(
                 'record_id' => $recordId,
@@ -612,11 +650,19 @@ switch ($action) {
                 'rating'  => $faqRating->getVotingResult($recordId)
             );
         } elseif (!$faq->votingCheck($recordId, $userIp)) {
-            $faqsession->userTracking('error_save_voting', $recordId);
+            try {
+                $faqsession->userTracking('error_save_voting', $recordId);
+            } catch (PMF_Exception $e) {
+                // @todo handle the exception
+            }
             $message = array('error' => $PMF_LANG['err_VoteTooMuch']);
 
         } else {
-            $faqsession->userTracking('error_save_voting', $recordId);
+            try {
+                $faqsession->userTracking('error_save_voting', $recordId);
+            } catch (PMF_Exception $e) {
+                // @todo handle the exception
+            }
             $message = array('error' => $PMF_LANG['err_noVote']);
         }
 
@@ -708,6 +754,11 @@ switch ($action) {
 
     // Save user data from UCP
     case 'saveuserdata':
+
+        if (!isset($_SESSION['phpmyfaq_csrf_token']) || $_SESSION['phpmyfaq_csrf_token'] !== $currentToken) {
+            $message = array('error' => $PMF_LANG['ad_msg_noauth']);
+            break;
+        }
 
         $userId   = PMF_Filter::filterInput(INPUT_POST, 'userid', FILTER_VALIDATE_INT);
         $name     = PMF_Filter::filterInput(INPUT_POST, 'name', FILTER_SANITIZE_STRING);

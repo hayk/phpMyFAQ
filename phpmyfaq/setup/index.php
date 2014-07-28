@@ -19,19 +19,19 @@
  * @author    Uwe Pries <uwe.pries@digartis.de>
  * @author    Matteo Scaramuccia <matteo@phpmyfaq.de>
  * @author    Florian Anderiasch <florian@phpmyfaq.de>
- * @copyright 2002-2013 phpMyFAQ Team
+ * @copyright 2002-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2002-08-20
  */
 
-define('COPYRIGHT', '&copy; 2001-2013 <a href="http://www.phpmyfaq.de/">phpMyFAQ Team</a> | Follow us on <a href="http://twitter.com/phpMyFAQ">Twitter</a> | All rights reserved.');
+define('COPYRIGHT', '&copy; 2001-2014 <a href="http://www.phpmyfaq.de/">phpMyFAQ Team</a> | Follow us on <a href="http://twitter.com/phpMyFAQ">Twitter</a> | All rights reserved.');
 define('PMF_ROOT_DIR', dirname(dirname(__FILE__)));
 define('PMF_INCLUDE_DIR', PMF_ROOT_DIR . '/inc');
 define('IS_VALID_PHPMYFAQ', null);
 
-if (version_compare(PHP_VERSION, '5.3.3') < 0) {
-    die("Sorry, but you need PHP 5.3.3 or later!"); // Die hard because of "use"
+if (version_compare(PHP_VERSION, '5.4.4') < 0) {
+    die("Sorry, but you need PHP 5.4.4 or later!"); // Die hard because of "use"
 }
 
 use Symfony\Component\ClassLoader\UniversalClassLoader;
@@ -48,7 +48,6 @@ session_name('phpmyfaq-setup');
 session_start();
 
 require PMF_ROOT_DIR . '/config/constants.php';
-require PMF_ROOT_DIR . '/setup/questionnaire.php';
 
 //
 // Setting up PSR-0 autoloader for Symfony Components
@@ -93,27 +92,27 @@ if (!isset($_POST['sql_server']) && !isset($_POST['sql_user']) && !isset($_POST[
         'databases' => $system->getSupportedSafeDatabases(true),
         'dirname'   => dirname(__DIR__)
     );
-?>
+    ?>
 
-        <form class="form-horizontal" action="setup.php" method="post">
+    <form class="form-horizontal" action="setup.php" method="post">
         <div class="row">
-            <div class="span6">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
                 <?php
                 $twig->loadTemplate('database.twig')->display($tplDatabaseVars);
                 ?>
             </div>
 
-<?php if (extension_loaded('ldap')): ?>
-            <div class="span6">
+            <?php if (extension_loaded('ldap')): ?>
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
                 <?php
                 $twig->loadTemplate('ldap.twig')->display($tplDatabaseVars);
                 ?>
             </div>
         </div>
         <div class="row">
-<?php endif; ?>
+            <?php endif; ?>
 
-            <div class="span6">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
                 <?php
                 $tplConfigVars = array(
                     'languageOptions' => $installer->renderLanguageOptions($languageCodes)
@@ -123,10 +122,9 @@ if (!isset($_POST['sql_server']) && !isset($_POST['sql_user']) && !isset($_POST[
             </div>
         </div>
 
-        <div class="row" style="padding-left: 20px; text-align: center;">
-
-            <button class="btn btn-primary btn-large" type="submit">
-                   Click to install phpMyFAQ <?php echo PMF_System::getVersion(); ?>
+        <div class="row text-center">
+            <button class="btn btn-primary btn-lg" type="submit">
+                Click to install phpMyFAQ <?php echo PMF_System::getVersion(); ?>
             </button>
         </div>
         <div class="row" style="padding-left: 20px;">
@@ -135,8 +133,8 @@ if (!isset($_POST['sql_server']) && !isset($_POST['sql_user']) && !isset($_POST[
                 encryption. You can change the encryption type for passwords in <em>config/constants.php</em>.
             </p>
         </div>
-        </form>
-<?php
+    </form>
+    <?php
     PMF_System::renderFooter();
 } else {
     $installer->startInstall();

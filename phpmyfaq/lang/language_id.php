@@ -4,7 +4,7 @@
  *
  * @author    Tri Agus Prayitno <tap@ruangweb.co.id>
  * @since     2009-12-28
- * @copyright 2004-2013 phpMyFAQ Team
+ * @copyright 2004-2014 phpMyFAQ Team
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -708,7 +708,7 @@ $PMF_LANG['ad_export_gen_docbook'] = 'Buat berkas Docbook';
 $PMF_LANG['ad_news_data'] = 'Data berita';
 $PMF_LANG['ad_news_author_name'] = 'Nama penulis:';
 $PMF_LANG['ad_news_author_email'] = 'Email penulis:';
-$PMF_LANG['ad_news_set_active'] = 'Aktifkan:';
+$PMF_LANG['ad_news_set_active'] = 'Aktifkan';
 $PMF_LANG['ad_news_allowComments'] = 'Bolehkan komentar:';
 $PMF_LANG['ad_news_expiration_window'] = 'Masa berlaku berita (tidak wajib)';
 $PMF_LANG['ad_news_from'] = 'Dari:';

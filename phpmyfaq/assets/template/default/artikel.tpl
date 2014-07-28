@@ -50,7 +50,7 @@
 
             <script>
                 $(function(){
-                    $('a[rel="tooltip"]').tooltip();
+                    $('abbr[rel="tooltip"]').tooltip();
                 });
             </script>
 
@@ -75,7 +75,7 @@
                     </dl>
                 </div>
                 <div class="tab-pane hidden-print" id="votingForm">
-                    <form action="#" method="post" class="form-inline">
+                    <form action="#" method="post" class="form-inline" accept-charset="utf-8">
                         <input type="hidden" name="artikel" value="{saveVotingID}" />
                         <div id="votings"></div>
                         <div class="star-rating">
@@ -94,7 +94,7 @@
                     {switchLanguage}
                 </div>
                 <div class="tab-pane hidden-print" id="addTranslation">
-                    <form action="{translationUrl}" method="post" class="form-inline">
+                    <form action="{translationUrl}" method="post" class="form-inline" accept-charset="utf-8">
                         {languageSelection}
                         <button class="btn btn-primary" type="submit" name="submit">
                             {msgTranslateSubmit}
@@ -103,11 +103,11 @@
                 </div>
             </div>
 
-            <p hidden-print>{writeCommentMsg}</p>
+            <p class="hidden-print">{writeCommentMsg}</p>
 
             <a id="comment"></a>
             <div id="commentForm" class="hide">
-                <form id="formValues" action="#" method="post" class="form-horizontal">
+                <form id="formValues" action="#" method="post" class="form-horizontal" accept-charset="utf-8">
                     <input type="hidden" name="id" id="id" value="{id}" />
                     <input type="hidden" name="lang" id="lang" value="{lang}" />
                     <input type="hidden" name="type" id="type" value="faq" />
@@ -163,12 +163,12 @@
                 });
 
             </script>
-            <style type="text/css" scoped>
-                @import "assets/js/syntaxhighlighter/styles/shCore.css";
-                @import "assets/js/syntaxhighlighter/styles/shThemeDefault.css";
+            <style scoped>
+                @import "{baseHref}assets/js/syntaxhighlighter/styles/shCore.css";
+                @import "{baseHref}assets/js/syntaxhighlighter/styles/shThemeDefault.css";
             </style>
-            <script src="assets/js/syntaxhighlighter/scripts/shCore.js"></script>
-            <script src="assets/js/syntaxhighlighter/scripts/shAutoloader.js"></script>
+            <script src="{baseHref}assets/js/syntaxhighlighter/scripts/shCore.js"></script>
+            <script src="{baseHref}assets/js/syntaxhighlighter/scripts/shAutoloader.js"></script>
             <script>
             SyntaxHighlighter.autoloader(
                 'js jscript javascript  assets/js/syntaxhighlighter/scripts/shBrushJScript.js',

@@ -2,7 +2,7 @@
 /**
  * Bootstrap phpMyFAQ
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,7 +11,7 @@
  * @category  phpMyFAQ
  * @package   Configuration
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2012-2013 phpMyFAQ Team
+ * @copyright 2012-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2012-03-07
@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 // - false      debug mode disabled
 // - true       debug mode enabled
 //
-define('DEBUG', false);
+define('DEBUG', true);
 if (DEBUG) {
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
@@ -111,12 +111,17 @@ if (! defined('PMF_MULTI_INSTANCE_CONFIG_DIR')) {
 //
 // Check if config/database.php exist -> if not, redirect to installer
 //
-if (!file_exists(PMF_CONFIG_DIR . '/database.php')) {
+
+if (!file_exists(PMF_CONFIG_DIR . '/database.php') && !file_exists(PMF_ROOT_DIR . '/inc/data.php')) {
     RedirectResponse::create('setup/index.php')->send();
-    exit;
+    exit();
 }
 
-require PMF_CONFIG_DIR . '/database.php';
+if (file_exists(PMF_ROOT_DIR . '/inc/data.php')) {
+    require PMF_ROOT_DIR . '/inc/data.php';
+} else {
+    require PMF_CONFIG_DIR . '/database.php';
+}
 require PMF_CONFIG_DIR . '/constants.php';
 
 //
@@ -127,9 +132,14 @@ set_error_handler('pmf_error_handler');
 //
 // Create a database connection
 //
-PMF_Db::setTablePrefix($DB['prefix']);
-$db = PMF_Db::factory($DB['type']);
-$db->connect($DB['server'], $DB['user'], $DB['password'], $DB['db']);
+try {
+    PMF_Db::setTablePrefix($DB['prefix']);
+    $db = PMF_Db::factory($DB['type']);
+    $db->connect($DB['server'], $DB['user'], $DB['password'], $DB['db']);
+} catch (PMF_Exception $e) {
+    PMF_Db::errorPage($e->getMessage());
+    exit(-1);
+}
 
 //
 // Fetch the configuration and add the database connection
@@ -206,6 +216,11 @@ if (! isset($_SERVER['SCRIPT_NAME'])) {
         $_SERVER['SCRIPT_NAME'] = $_SERVER['SCRIPT_URL'];
     }
 }
+
+//
+// phpMyFAQ exception log
+//
+$pmfExeptions = [];
 
 /**
  * phpMyFAQ custom error handler function, also to prevent the disclosure of

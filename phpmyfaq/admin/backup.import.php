@@ -2,7 +2,7 @@
 /**
  * The import function to import the phpMyFAQ backups
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,26 +11,32 @@
  * @category  phpMyFAQ 
  * @package   Administration
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2003-2013 phpMyFAQ Team
+ * @copyright 2003-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2003-02-24
  */
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
 $csrfToken = PMF_Filter::filterInput(INPUT_POST, 'csrf', FILTER_SANITIZE_STRING);
 
 if (!isset($_SESSION['phpmyfaq_csrf_token']) || $_SESSION['phpmyfaq_csrf_token'] !== $csrfToken) {
-    $permission['restore'] = false; 
+    $csrfCheck = false;
+} else {
+    $csrfCheck = true;
 }
 
-if ($permission['restore']) {
+if ($user->perm->checkRight($user->getUserId(), 'restore') && $csrfCheck) {
 
-    printf("<header><h2>%s</h2></header>\n", $PMF_LANG['ad_csv_rest']);
+    printf('<header><h2 class="page-header">%s</h2></header>', $PMF_LANG['ad_csv_rest']);
 
     if (isset($_FILES['userfile']) && 0 == $_FILES['userfile']['error']) {
         
@@ -87,7 +93,7 @@ if ($permission['restore']) {
                 $mquery[$i] = PMF_DB_Helper::alignTablePrefix($mquery[$i], $table_prefix, PMF_Db::getTablePrefix());
                 $kg         = $faqConfig->getDb()->query($mquery[$i]);
                 if (!$kg) {
-                    printf('<div style="alert alert-error"><strong>Query</strong>: "%s" failed (Reason: %s)</div>%s',
+                    printf('<div style="alert alert-danger"><strong>Query</strong>: "%s" failed (Reason: %s)</div>%s',
                         PMF_String::htmlspecialchars($mquery[$i], ENT_QUOTES, 'utf-8'),
                         $faqConfig->getDb()->error(),
                         "\n");
@@ -133,7 +139,7 @@ if ($permission['restore']) {
                 $errorMessage = 'Undefined error.';
                 break;
         }
-        printf('<p class="alert alert-error">%s (%s)</p>', $PMF_LANG['ad_csv_no'], $errorMessage);
+        printf('<p class="alert alert-danger">%s (%s)</p>', $PMF_LANG['ad_csv_no'], $errorMessage);
     }
 } else {
     print $PMF_LANG['err_NotAuth'];

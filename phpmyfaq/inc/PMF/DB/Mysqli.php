@@ -3,7 +3,7 @@
  * The PMF_DB_Mysqli class provides methods and functions for MySQL 5.x and
  * MariaDB 5.x databases
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,7 @@
  * @package   DB
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    David Soria Parra <dsoria@gmx.net>
- * @copyright 2005-2013 phpMyFAQ Team
+ * @copyright 2005-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @package   2005-02-21
@@ -30,7 +30,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
  * @package   DB
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    David Soria Parra <dsoria@gmx.net>
- * @copyright 2005-2013 phpMyFAQ Team
+ * @copyright 2005-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @package   2005-02-21
@@ -56,7 +56,7 @@ class PMF_DB_Mysqli implements PMF_DB_Driver
      *
      * @var array
      */
-    public $tableNames = array();
+    public $tableNames = [];
 
     /**
      * Connects to the database.
@@ -65,6 +65,8 @@ class PMF_DB_Mysqli implements PMF_DB_Driver
      * @param string $user     Username
      * @param string $password Password
      * @param string $database Database name
+     *
+     * @throws PMF_Exception
      *
      * @return  boolean true, if connected, otherwise false
      */
@@ -88,39 +90,39 @@ class PMF_DB_Mysqli implements PMF_DB_Driver
         }
 
         if ('' !== $database) {
-            return $this->selectDb($database);
+            if (! $this->conn->select_db($database)) {
+                throw new PMF_Exception('Cannot connect to database ' . $database);
+            }
         }
 
         return true;
     }
 
     /**
-     * Connects to a given database
+     * This function sends a query to the database.
      *
-     * @param string $database Database name
+     * @param string  $query
+     * @param integer $offset
+     * @param integer $rowcount
      *
-     * @return boolean
-     */
-    public function selectDb($database)
-    {
-        return $this->conn->select_db($database);
-    }
-
-    /**
-     * Sends a query to the database.
-     *
-     * @param   string $query
      * @return  mixed $result
      */
-    public function query($query)
+    public function query($query, $offset = 0, $rowcount = 0)
     {
         if (DEBUG) {
             $this->sqllog .= PMF_Utils::debug($query);
         }
+
+        if (0 < $rowcount) {
+            $query .= sprintf(' LIMIT %d,%d', $offset, $rowcount);
+        }
+
         $result = $this->conn->query($query);
+
         if (!$result) {
             $this->sqllog .= $this->error();
         }
+
         return $result;
     }
 
@@ -172,7 +174,7 @@ class PMF_DB_Mysqli implements PMF_DB_Driver
      */
     public function fetchAll($result)
     {
-        $ret = array();
+        $ret = [];
         if (false === $result) {
             throw new Exception('Error while fetching result: ' . $this->error());
         }
@@ -192,7 +194,11 @@ class PMF_DB_Mysqli implements PMF_DB_Driver
      */
     public function numRows($result)
     {
-        return $result->num_rows;
+        try {
+            return $result->num_rows;
+        } catch (PMF_Exception $e) {
+            return $e->getMessage();
+        }
     }
 
     /**
@@ -212,7 +218,7 @@ class PMF_DB_Mysqli implements PMF_DB_Driver
       */
     public function getTableStatus()
     {
-        $arr = array();
+        $arr = [];
         $result = $this->query("SHOW TABLE STATUS");
         while ($row = $this->fetchArray($result)) {
             $arr[$row["Name"]] = $row["Rows"];

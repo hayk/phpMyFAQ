@@ -3,7 +3,7 @@
  * Shows the page with the news record and - when available - the user
  * comments
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,7 @@
  * @package   Frontend
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Matteo Scaramuccia <matteo@scaramuccia.com>
- * @copyright 2006-2013 phpMyFAQ Team
+ * @copyright 2006-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2006-07-23
@@ -22,7 +22,11 @@
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
@@ -44,11 +48,19 @@ if (is_null($newsId)) {
     exit;
 }
 
-$faqsession->userTracking('news_view', $categoryId);
+try {
+    $faqsession->userTracking('news_view', $categoryId);
+} catch (PMF_Exception $e) {
+    // @todo handle the exception
+}
 
 // Define the header of the page
 $newsMainHeader = $faqConfig->get('main.titleFAQ') . $PMF_LANG['msgNews'];
-$newsFeed       = '&nbsp;<a href="feed/news/rss.php" target="_blank"><img id="newsRSS" src="assets/img/feed.png" width="16" height="16" alt="RSS" /></a>';
+if ($faqConfig->get('main.enableRssFeeds')) {
+    $newsFeed = '&nbsp;<a href="feed/news/rss.php" target="_blank"><i class="fa fa-rss"></i></a>';
+} else {
+    $newsFeed = '';
+}
 
 // Get all data from the news record
 $news = $oNews->getNewsEntry($newsId);
@@ -72,7 +84,7 @@ if (strlen($news['link']) > 0) {
 
 // Show link to edit the news?
 $editThisEntry = '';
-if (isset($permission['editnews'])) {
+if ($user->perm->checkRight($user->getUserId(), 'editnews')) {
     $editThisEntry = sprintf(
                         '<a href="%sadmin/index.php?action=news&amp;do=edit&amp;id=%d">%s</a>',
                         PMF_Link::getSystemRelativeUri('index.php'),
@@ -84,7 +96,8 @@ if (isset($permission['editnews'])) {
 $expired = (date('YmdHis') > $news['dateEnd']);
 
 // Does the user have the right to add a comment?
-if ((!$news['active']) || (!$news['allowComments']) || $expired) {
+if ((-1 === $user->getUserId() && !$faqConfig->get('records.allowCommentsForGuests')) ||
+    (!$news['active']) || (!$news['allowComments']) || $expired) {
     $commentMessage = $PMF_LANG['msgWriteNoComment'];
 } else {
     $commentMessage = sprintf(

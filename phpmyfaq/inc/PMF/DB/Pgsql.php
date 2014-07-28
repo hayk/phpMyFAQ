@@ -3,7 +3,7 @@
  * The PMF_DB_Pgsql class provides methods and functions for a PostgreSQL
  * database.
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,7 @@
  * @package   DB
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Tom Rochester <tom.rochester@gmail.com>
- * @copyright 2003-2013 phpMyFAQ Team
+ * @copyright 2003-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @package   2003-02-24
@@ -30,7 +30,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
  * @package   DB
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Tom Rochester <tom.rochester@gmail.com>
- * @copyright 2003-2013 phpMyFAQ Team
+ * @copyright 2003-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @package   2003-02-24
@@ -56,7 +56,7 @@ class PMF_DB_Pgsql implements PMF_DB_Driver
      *
      * @var array
      */
-    public $tableNames = array();
+    public $tableNames = [];
 
     /**
      * Connects to the database.
@@ -91,32 +91,30 @@ class PMF_DB_Pgsql implements PMF_DB_Driver
     }
 
     /**
-     * Connects to a given database
+     * This function sends a query to the database.
      *
-     * @param string $database Database name
+     * @param string  $query
+     * @param integer $offset
+     * @param integer $rowcount
      *
-     * @return boolean
-     */
-    public function selectDb($database)
-    {
-        return true;
-    }
-
-    /**
-     * Sends a query to the database.
-     *
-     * @param   string $query
      * @return  mixed $result
      */
-    public function query($query)
+    public function query($query, $offset = 0, $rowcount = 0)
     {
         if (DEBUG) {
             $this->sqllog .= PMF_Utils::debug($query);
         }
+
+        if (0 < $rowcount) {
+            $query .= sprintf(' LIMIT %d OFFSET %d', $rowcount, $offset);
+        }
+
         $result = pg_query($this->conn, $query);
+
         if (!$result) {
             $this->sqllog .= $this->error();
         }
+
         return $result;
     }
 
@@ -166,7 +164,7 @@ class PMF_DB_Pgsql implements PMF_DB_Driver
      */
     public function fetchAll($result)
     {
-        $ret = array();
+        $ret = [];
         if (false === $result) {
             throw new Exception('Error while fetching result: ' . $this->error());
         }
@@ -219,7 +217,7 @@ class PMF_DB_Pgsql implements PMF_DB_Driver
     public function getTableStatus()
     {
         $select = "SELECT relname FROM pg_stat_user_tables ORDER BY relname;";
-        $arr = array();
+        $arr = [];
         $result = $this->query($select);
         while ($row = $this->fetchArray($result)) {
             $count = $this->getOne("SELECT count(1) FROM ".$row["relname"].";");
@@ -294,12 +292,8 @@ class PMF_DB_Pgsql implements PMF_DB_Driver
         // First, declare those tables that are referenced by others
         $this->tableNames[] = $prefix.'faquser';
 
-        if ('' !== $prefix) {
-            $prefix = "LIKE '" . $prefix . "%'";
-        }
-
         $query = sprintf(
-            'SELECT relname FROM pg_stat_user_tables WHERE relname %s ORDER BY relname',
+            "SELECT relname FROM pg_stat_user_tables WHERE relname LIKE '%sfaq%%' ORDER BY relname",
             $prefix
         );
 

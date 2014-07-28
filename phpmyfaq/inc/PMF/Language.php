@@ -2,7 +2,7 @@
 /**
  * Manages all language stuff
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,7 @@
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Matteo scaramuccia <matteo@phpmyfaq.de>
  * @author    Aurimas Fišeras <aurimas@gmail.com>
- * @copyright 2009-2013 phpMyFAQ Team
+ * @copyright 2009-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2009-05-14
@@ -31,7 +31,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Matteo scaramuccia <matteo@phpmyfaq.de>
  * @author    Aurimas Fišeras <aurimas@gmail.com>
- * @copyright 2009-2013 phpMyFAQ Team
+ * @copyright 2009-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2009-05-14
@@ -80,7 +80,7 @@ class PMF_Language
      */
     public function languageAvailable($id, $table = 'faqdata')
     {
-        $output = array();
+        $output = [];
 
         if (isset($id)) {
             if ($id == 0) {
@@ -127,7 +127,7 @@ class PMF_Language
      */
     public function setLanguage($configDetection, $configLanguage)
     {
-        $_lang = array();
+        $_lang = [];
         self::_getUserAgentLanguage();
 
         // Get language from: _POST, _GET, _COOKIE, phpMyFAQ configuration and the automatic language detection
@@ -143,7 +143,7 @@ class PMF_Language
         // Get the faq record language
         $_lang['artget'] = PMF_Filter::filterInput(INPUT_GET, 'artlang', FILTER_SANITIZE_STRING);
         if (!is_null($_lang['artget']) && !self::isASupportedLanguage($_lang['artget']) ) {
-            $_lang['get'] = null;
+            $_lang['artget'] = null;
         }
         // Get the language from the session
         if (isset($_SESSION['pmf_lang']) && self::isASupportedLanguage($_SESSION['pmf_lang']) ) {
@@ -207,7 +207,7 @@ class PMF_Language
         global $languageCodes;
         
         $search    = array("language_" , ".php");
-        $languages = $languageFiles = array();
+        $languages = $languageFiles = [];
         
         $dir = new DirectoryIterator(PMF_LANGUAGE_DIR);
         foreach ($dir as $fileinfo) {
@@ -241,12 +241,12 @@ class PMF_Language
      * @param  string  $id
      * @return string
      */
-    public static function selectLanguages($default, $submitOnChange = false, Array $excludedLanguages = array(), $id = 'language')
+    public static function selectLanguages($default, $submitOnChange = false, Array $excludedLanguages = [], $id = 'language')
     {
         global $languageCodes;
         
         $onChange  = ($submitOnChange ? ' onchange="this.form.submit();"' : '');
-        $output    = '<select class="language" name="' . $id . '" id="' . $id . '" size="1"' . $onChange . ">\n";
+        $output    = '<select class="form-control" name="' . $id . '" id="' . $id . '" size="1"' . $onChange . ">\n";
         $languages = self::getAvailableLanguages();
         
         if (count($languages) > 0) {
@@ -348,7 +348,7 @@ class PMF_Language
      */
     private function _getUserAgentLanguage()
     {
-        $matches = $languages = array();
+        $matches = $languages = [];
 
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // ISO Language Codes, 2-letters: ISO 639-1, <Country tag>[-<Country subtag>]

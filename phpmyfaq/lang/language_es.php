@@ -2,7 +2,7 @@
 /**
  * Spanish language file
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,8 @@
  * @author    Eduardo Polidor
  * @author    Ivan Gil
  * @author    Lisandro López Villatoro
- * @copyright 2004-2013 phpMyFAQ Team
+ * @author    Luis Carvalho <luis.carvalho@iberweb.pt>
+ * @copyright 2004-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2004-06-24
@@ -24,8 +25,8 @@ $PMF_LANG['language'] = 'Spanish';
 $PMF_LANG['dir'] = 'ltr';
 $PMF_LANG['nplurals'] = '2';
 $PMF_LANG['msgCategory'] = 'Categorías';
-$PMF_LANG['msgShowAllCategories'] = 'Mostrar Categorías';
-$PMF_LANG['msgSearch'] = 'Buscar';
+$PMF_LANG['msgShowAllCategories'] = 'Ver todas las categorías';
+$PMF_LANG['msgSearch'] = 'Encuentre ayuda! Ponga su pregunta aquí';
 $PMF_LANG['msgAddContent'] = 'Añadir contenido';
 $PMF_LANG['msgQuestion'] = 'Hacer pregunta';
 $PMF_LANG['msgOpenQuestions'] = 'Abrir Preguntas';
@@ -108,19 +109,19 @@ $PMF_LANG['msgQuestionText'] = 'Aquí puedes ver algunas preguntas de otros usua
 $PMF_LANG['msgHelpText'] = '<p>La estructura del FAQ (<strong>F</strong>requently <strong>A</strong>sked <strong>Q</strong>uestions)es bastante simple. Puedes seleccionar buscar entre <strong><a href="?action=show">categorías</a></strong> o dejar al <strong><a href="?action=search">motor de búsqueda</a></strong> que te muestre las palabras clave.</p>';
 $PMF_LANG['msgContactEMail'] = 'escribir al webmaster:';
 $PMF_LANG['msgMessage'] = 'Tu mensaje:';
-$PMF_LANG['msgTopTen'] = 'TOP 10';
+$PMF_LANG['msgTopTen'] = 'TOP 5';
 $PMF_LANG['msgHomeThereAre'] = 'Hay ';
 $PMF_LANG['msgHomeArticlesOnline'] = ' registros en línea';
 $PMF_LANG['msgNoNews'] = 'No hay noticias disponibles.';
-$PMF_LANG['msgLatestArticles'] = 'Los últimos cinco registros:';
+$PMF_LANG['msgLatestArticles'] = 'Los cinco más reciente:';
 $PMF_LANG['msgMailThanks'] = 'Muchas gracias por tu propuesta par el FAQ.';
 $PMF_LANG['msgMailCheck'] = 'Hay un nuevo registro en el FAQ! Por favor, chequea la sección de administración!';
 $PMF_LANG['msgMailContact'] = '¡Tu mensaje ha sido enviado al administrador!';
 $PMF_LANG['err_noDatabase'] = '¡No hay conexión disponible con la base de datos!';
-$PMF_LANG['err_noHeaders'] = '¡No se ha encontrado ninguna categoría!';
-$PMF_LANG['err_noArticles'] = '<p>No hay entradas disponibles.</p>';
+$PMF_LANG['err_noHeaders'] = 'No se ha encontrado ninguna categoría!';
+$PMF_LANG['err_noArticles'] = 'No hay entradas disponibles.';
 $PMF_LANG['err_badID'] = '<p>¡ID erróneo!</p>';
-$PMF_LANG['err_noTopTen'] = '<p>No hay TOP Ten disponibles aún.</p>';
+$PMF_LANG['err_noTopTen'] = 'No hay TOP Five disponibles aún.';
 $PMF_LANG['err_nothingFound'] = '<p>No se han encontrado entradas.</p>';
 $PMF_LANG['err_SaveEntries'] = 'Campos requeridos son <strong>tu Nombre</strong>, <strong>tu dirección de e-mail</strong>, <strong>categoría</strong>, <strong>encabezado</strong> y <strong>tu Registro</strong>!<br /><br /><a href="javascript:history.back();">volver atrás</a><br /><br />';
 $PMF_LANG['err_SaveComment'] = 'Campos requeridos son <strong>tu Nombre</strong>, <strong>tu dirección de e-mail</strong> y <strong>tus comentarios</strong>!<br /><br /><a href="javascript:history.back();">volver atrás</a><br /><br />';
@@ -338,7 +339,7 @@ $PMF_LANG['ad_att_butt'] = 'OK';
 $PMF_LANG['ad_att_suc'] = 'El archivo se adjuntó correctamente.';
 $PMF_LANG['ad_att_fail'] = 'ha habido un error al adjuntar el archivo.';
 $PMF_LANG['ad_att_close'] = 'Cerrar esta ventana';
-$PMF_LANG['ad_csv_restore'] = 'Mediante este formulario podrás restaurar los contenidos de la base de datos, usando un respaldo hecho con phpmyfaq. Por favor, nota que los registros existentes serán remplazados.';
+$PMF_LANG['ad_csv_restore'] = 'Mediante este formulario podrás restaurar los contenidos de la base de datos, usando un respaldo hecho con Centro de Ayuda. Por favor, nota que los registros existentes serán remplazados.';
 $PMF_LANG['ad_csv_file'] = 'Archivo';
 $PMF_LANG['ad_csv_ok'] = 'OK';
 $PMF_LANG['ad_csv_linklog'] = 'Salvar LOGs';
@@ -370,7 +371,7 @@ $PMF_LANG['ad_stat_laen'] = 'Ultimo acceso';
 $PMF_LANG['ad_stat_browse'] = 'Navegar por las Sesiones';
 $PMF_LANG['ad_stat_ok'] = 'OK';
 $PMF_LANG['ad_ques_take'] = 'Editar cuestión';
-$PMF_LANG['no_cats'] = '¡No se han encontrado categorías!';
+$PMF_LANG['no_cats'] = 'No se han encontrado categorías con FAQ\'s!';
 $PMF_LANG['ad_log_lger'] = 'Contraseña o usuario inválido.';
 $PMF_LANG['ad_log_sess'] = 'La sesión ha expirado.';
 $PMF_LANG['ad_log_edit'] = '\"Editar Usuario\"- desde el siguiente usuario: ';
@@ -591,7 +592,7 @@ $PMF_LANG['ad_export_gen_docbook'] = 'Crear archivo Docbook';
 $PMF_LANG['ad_news_data'] = 'Datos de noticias';
 $PMF_LANG['ad_news_author_name'] = 'Nombre del autor:';
 $PMF_LANG['ad_news_author_email'] = 'Correo del autor:';
-$PMF_LANG['ad_news_set_active'] = 'Activar:';
+$PMF_LANG['ad_news_set_active'] = 'Activar';
 $PMF_LANG['ad_news_allowComments'] = 'Aceptar comentarios:';
 $PMF_LANG['ad_news_expiration_window'] = 'Tiempo de expiración de la ventana de noticias (opcional)';
 $PMF_LANG['ad_news_from'] = 'De:';
@@ -854,3 +855,144 @@ $PMF_LANG['plmsgEntries']['1'] = '%d FAQs';
 $PMF_LANG['plmsgUserOnline']['0'] = '%s usuarios conectados';
 $PMF_LANG['plmsgUserOnline']['1'] = '';
 $PMF_LANG['ad_user_password'] = 'Contraseña';
+
+//new language
+
+$PMF_LANG["msglang"]="Elegir Idioma";
+$PMF_LANG['msgchatbot'] = "Chat";
+$PMF_LANG["msglang_op1"] = 'Portugués';
+$PMF_LANG["msglang_op2"] = 'Inglés';
+$PMF_LANG["msglang_op3"] = 'español';
+$PMF_LANG['main_title'] ='Centro de Ayuda';
+$PMF_LANG['msgSearch_btn'] = 'Buscar';
+$PMF_LANG['main_tut_pdf'] = 'Tutoriales .PDF';
+$PMF_LANG['main_tut_video'] = 'Tutoriales en vídeo';
+$PMF_LANG['tut_all_videos'] = 'Ver todos los videos';
+$PMF_LANG['tut_no_video'] = 'No hay videos tutoriales disponibles';
+$PMF_LANG['msgvideos_url'] = 'pag_videos.php?'.$sids.'action=tutoriais_video';
+$PMF_LANG['msgler+'] = 'leer más';
+$PMF_LANG['tut_no_pdf'] = 'No hay tutoriales .pdf disponibles';
+$PMF_LANG['msgcontactar'] = 'Contacto';
+$PMF_LANG['title2'] = 'Encontrar respuestas y ayuda rápida';
+$PMF_LANG['transfer'] ='Transferencia';
+$PMF_LANG["no_cats_pdf"] = "No hay categorías con tutoriales .pdf";
+$PMF_LANG["no_cats_video"] = "No hay categorías con tutoriales video";
+$PMF_LANG['contactar_header'] ='1.:Para un análisis rápido de la situación de que deseas reportar a escoger una de las siguientes categorías:';
+$PMF_LANG['sol_util'] = 'Esta solución era útil a ti?';
+$PMF_LANG["per_rel"] = 'Preguntas relacionadas:';
+$PMF_LANG['sol_util2'] = 'Estas soluciones han sido útiles por sí mismo?';
+$PMF_LANG['btn_s'] = 'Sí';
+$PMF_LANG['btn_n'] = 'No';
+$PMF_LANG['aval1'] ='Gracias por utilizar nuestro centro de ayuda.';
+$PMF_LANG['aval2'] = 'Danos tu opinión. Ayúdanos a mejorar.';
+$PMF_LANG['aval3'] = 'Evaluar la solución obtenida.';
+$PMF_LANG["r_c_fechar"] ='Cerca';
+$PMF_LANG['opn'] = 'gracias por tu opinión';
+$PMF_LANG['cont'] = 'Póngase en contacto con nosotros. Rellene el siguiente formulario';
+$PMF_LANG['msgContacto'] = 'Para un análisis rápido de la situación quiere reportar, rellene y envíenos el siguiente formulario';
+$PMF_LANG['msgcategorias'] = 'Categoría Seleccionada:';
+$PMF_LANG['msgcont_assunto'] = 'sujeto:';
+$PMF_LANG['cont2'] ='Formulario presentado correctamente.\nGracias por utilizar nuestro centro de ayuda.';
+$PMF_LANG['ad_menu_admin_pdf'] = 'Administración Tutoriales .pdf';
+$PMF_LANG['ad_menu_admin_video'] = 'Administración Tutoriales video';
+$PMF_LANG['ad_menu_admin_resp_cond'] = 'Administración do Sistema de Respuesta Conducido';
+$PMF_LANG['ad_menu_stat_resp_cond'] = 'Estadística do Sistema de Respostas Conducidas';
+$PMF_LANG['no_cat'] = 'No se han encontrado categorías';
+$PMF_LANG['add_cat'] ='añadir una categoría';
+$PMF_LANG['tut'] = 'Tutorial';
+$PMF_LANG['tuts'] = 'Tutoriales';
+$PMF_LANG['s_tut'] = 'No hay Tutoriales';
+$PMF_LANG['tut2'] = 'Tema';
+$PMF_LANG['tuts2'] = 'Temas';
+$PMF_LANG['s_tut2'] = 'No hay Temas';
+$PMF_LANG['no_tut_c'] = 'La categoría';
+$PMF_LANG['no_tut_c2'] ='no contiene tutoriales asociados.';
+$PMF_LANG['no_tut_c3'] ='no contiene temas asociados.';
+$PMF_LANG['menu_ant'] ='Volver al menú anterior';
+$PMF_LANG['add_tut'] ='Añadir tutorial .PDF';
+$PMF_LANG['add_tut_v'] = 'Añadir tutorial video';
+$PMF_LANG['add_tema'] = 'Añadir tema';
+$PMF_LANG['ins_pdf'] ='Entrando Tutoriales .pdf';
+$PMF_LANG['tit_tut'] ='Título Tutorial';
+$PMF_LANG['cat']='Categoría';
+$PMF_LANG['lg']='Idioma';
+$PMF_LANG['desc']='Descripción';
+$PMF_LANG['sel_tut']='Seleccione tutorial';
+$PMF_LANG['search_tut'] = 'búsqueda';
+$PMF_LANG['ins_tut_suc'] ='Tutorial insertado con éxito.';
+$PMF_LANG['edit_pdf'] = 'Edición tutoriales .pdf';
+$PMF_LANG['cat_tut'] = 'Seleccione la categoría';
+$PMF_LANG['msg_edit_tut'] ='Nota: Si desea cambiar el idioma de tutorial, no se olvide de cambiar a la categoría respectiva de la lengua elegida.';
+$PMF_LANG['ins_tut_fail'] = 'Error al insertar tutorial';
+$PMF_LANG['edit_tut_fail'] ='Fracaso en la edición tutorial.';
+$PMF_LANG['edit_tut_suc'] ='Información Tutorial actualizado correctamente.';
+$PMF_LANG['ad_cat_suc'] = 'Categoría insertado con éxito';
+$PMF_LANG['confirm_del_pdf'] = 'Está seguro que desea eliminar el tutorial?';
+$PMF_LANG['del_tut_fail'] ='No se pudo eliminar tutorial.';
+$PMF_LANG['del_tut_suc'] ='Tutorial eliminado correctamente.';
+$PMF_LANG['lk_video'] = 'Link de vídeo';
+$PMF_LANG['ins_video'] = 'Entrando Tutoriales Video';
+$PMF_LANG['edit_video'] = 'Edición tutoriales video';
+$PMF_LANG['ins_tem_resp_cond'] = 'Inserción de los temas relacionados con una categoría en el sistema de respuesta realizada';
+$PMF_LANG['ins_tem_fail'] = 'Error al insertar tema';
+$PMF_LANG['ins_tem_suc'] = 'Tema insertado con éxito.';
+$PMF_LANG['sem_perguntas'] = 'No hay preguntas';
+$PMF_LANG['edit_tem'] = 'Edición de temas do sistema de respuesta conducida';
+$PMF_LANG['tit_tem'] = 'Título del tema:';
+$PMF_LANG['del_per_fail'] ='Error al eliminar la pregunta.';
+$PMF_LANG['del_tem_fail'] ='Error al eliminar lo tema.';
+$PMF_LANG['del_tem_suc'] ='Tema eliminado correctamente.';
+$PMF_LANG['del_tem_per_suc'] ='Tema y preguntas eliminados con éxito.';
+$PMF_LANG['confirm_del_t_p'] ='ADVERTENCIA: Cuando se elimina el tema también eliminará las preguntas relacionadas con ella!\n\nSeguro que quieres eliminar el tema?';
+$PMF_LANG['confirm_del_t'] = 'Está seguro que desea eliminar el tema?';
+$PMF_LANG['edit_tem_fail'] = 'Error al actualizar la información del tema.';
+$PMF_LANG['edit_tem_suc'] = 'Información Tema actualizado correctamente.';
+$PMF_LANG['add_pergunta'] = 'Añadir pregunta';
+$PMF_LANG['no_tem_p'] = 'El tema';
+$PMF_LANG['no_tem_p2'] = 'no contiene preguntas asociados.';
+$PMF_LANG['ins_per'] = 'Inclusión de preguntas relacionadas con un tema y la categoría en el sistema de respuesta realizada';
+$PMF_LANG['tit_per'] = 'Título de la pregunta';
+$PMF_LANG['sol_per'] = 'Solución';
+$PMF_LANG['tem'] = 'Tema';
+$PMF_LANG['ins_per_fail'] = 'Error al insertar pregunta';
+$PMF_LANG['ins_per_suc'] = 'Pregunta insertado con éxito.';
+$PMF_LANG['del_per_suc'] = 'Pregunta eliminado correctamente.';
+$PMF_LANG['confirm_del_p'] = 'Está seguro que desea eliminar la pregunta';
+$PMF_LANG['edit_p_r_c'] = 'edición  de preguntas do sistema de respuesta conducida';
+$PMF_LANG['sel_tem'] ='Seleccione el tema';
+$PMF_LANG['edit_per_fail'] = 'No se pudo editar la pregunta.';
+$PMF_LANG['edit_per_suc'] = 'Información de la pregunta actualizada correctamente.';
+$PMF_LANG["no_per_rel"] = 'Esta pregunta no contiene preguntas relacionadas';
+$PMF_LANG['msgcontactar2'] ='Contáctenos';
+$PMF_LANG['kw'] = 'palabras clave';
+$PMF_LANG['lab_kws'] = 'Nota: Escriba cada palabra clave separadas por comas y sin espacios.';
+$PMF_LANG['ins_per_double_fail'] = 'ERROR: No se puede insertar preguntas duplicadas.';
+$PMF_LANG['msg_art_recente']='Últimos artículos';
+$PMF_LANG['msg_art_populares']='Artículos más populares';
+$PMF_LANG['msg_quest_freq']='Preguntas más frecuentes';
+$PMF_LANG['msg_outros']='Otro';
+$PMF_LANG['msg_artigo1']= 'Artículo 1';	
+$PMF_LANG['msg_artigo2']='Artículo 2';
+$PMF_LANG['msg_artigo3']='Artículo 3';
+$PMF_LANG['msg_questao1']='Pregunta 1';	
+$PMF_LANG['msg_questao2']='Pregunta 2';
+$PMF_LANG['msg_questao3']='Pregunta 3';
+$PMF_LANG['ad_menu_config_logo'] = 'Configurar logo';
+$PMF_LANG['ad_menu_config_bg'] = 'Configurar background y la sombra de los menús principales';
+$PMF_LANG['logo_atual'] = 'Logo actual';
+$PMF_LANG['edit_bx_fail'] = 'Fallo edición de la sombra de los menús principales.';
+$PMF_LANG['edit_bx_suc'] = 'Éxito de editar la sombra de los menús principales.';
+$PMF_LANG['bg_atual'] ='Background actual';
+$PMF_LANG['msg_bg'] = 'NOTE: El fondo se define como imagen';
+$PMF_LANG['sel_logo'] = 'Seleccionar logo';
+$PMF_LANG['edit_logo_fail'] = 'Logo edición Error.';
+$PMF_LANG['msg_bg2'] = 'NOTE: El fondo se define color sólido';
+$PMF_LANG['edit_logo_suc'] = 'Logo editado correctamente.';
+$PMF_LANG['img_cat'] = 'Imagen de categoría';
+$PMF_LANG['msg_edit_logo'] = 'Tamaño máximo: 100kb; Dimensiones: 220x124 pixels.';
+$PMF_LANG['msg_sub_cat'] = 'Subcategorías';
+$PMF_LANG['box_shadow'] = ' Sombra de los menús principales:';
+$PMF_LANG['msg_follow'] = 'Síguenos en';
+$PMF_LANG['msg_versao'] = 'Versión del centro de ayuda';
+$PMF_LANG['path_inst'] = 'Ruta de instalación del Centro de Ayuda';
+$PMF_LANG['ad_instance_add'] = 'Agregue una instancia <em>multi-site</em> del Centro de Ayuda';

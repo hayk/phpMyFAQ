@@ -2,7 +2,7 @@
 /**
  * AJAX: handling of Ajax group calls
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,7 +11,7 @@
  * @category  phpMyFAQ
  * @package   Administration
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2009-2013 phpMyFAQ Team
+ * @copyright 2009-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2009-04-06
@@ -20,7 +20,11 @@
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
@@ -29,16 +33,18 @@ $response = new JsonResponse;
 $ajaxAction = PMF_Filter::filterInput(INPUT_GET, 'ajaxaction', FILTER_SANITIZE_STRING);
 $groupId    = PMF_Filter::filterInput(INPUT_GET, 'group_id', FILTER_VALIDATE_INT);
 
-if ($permission['adduser'] || $permission['edituser'] || $permission['deluser']) {
+if ($user->perm->checkRight($user->getUserId(), 'adduser') ||
+    $user->perm->checkRight($user->getUserId(), 'edituser') ||
+    $user->perm->checkRight($user->getUserId(), 'deluser')) {
     
     $user      = new PMF_User($faqConfig);
     $userList  = $user->getAllUsers();
-    $groupList = ($user->perm instanceof PMF_Perm_Medium) ? $user->perm->getAllGroups() : array();
+    $groupList = ($user->perm instanceof PMF_Perm_Medium) ? $user->perm->getAllGroups() : [];
 
     switch ($ajaxAction) {
         // Returns all groups
         case 'get_all_groups':
-            $groups = array();
+            $groups = [];
             foreach ($groupList as $groupId) {
                 $data     = $user->perm->getGroupData($groupId);
                 $groups[] = array(
@@ -61,7 +67,7 @@ if ($permission['adduser'] || $permission['edituser'] || $permission['deluser'])
     
         // Return all users
         case 'get_all_users':
-            $users = array();
+            $users = [];
             foreach ($userList as $single_user) {
                 $user->getUserById($single_user);
                 $users[] = array('user_id' => $user->getUserId(),
@@ -73,7 +79,7 @@ if ($permission['adduser'] || $permission['edituser'] || $permission['deluser'])
         // Returns all group members
         case 'get_all_members':
             $memberList = $user->perm->getGroupMembers($groupId);
-            $members    = array();
+            $members    = [];
             foreach ($memberList as $single_member) {
                 $user->getUserById($single_member);
                 $members[] = array('user_id' => $user->getUserId(),

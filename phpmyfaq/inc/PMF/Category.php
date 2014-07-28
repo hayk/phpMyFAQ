@@ -2,7 +2,7 @@
 /**
  * The main category class
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -14,7 +14,7 @@
  * @author    Lars Tiedemann <larstiedemann@yahoo.de>
  * @author    Matteo Scaramuccia <matteo@scaramuccia.com>
  * @author    Rudi Ferrari <bookcrossers@gmx.de>
- * @copyright 2004-2013 phpMyFAQ Team
+ * @copyright 2004-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2004-02-16
@@ -33,7 +33,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
  * @author    Lars Tiedemann <larstiedemann@yahoo.de>
  * @author    Matteo Scaramuccia <matteo@scaramuccia.com>
  * @author    Rudi Ferrari <bookcrossers@gmx.de>
- * @copyright 2004-2013 phpMyFAQ Team
+ * @copyright 2004-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2004-02-16
@@ -65,28 +65,28 @@ class PMF_Category
      *
      * @var  array
      */
-    public $categories = array();
+    public $categories = [];
 
     /**
      * The category names as an array.
      *
      * @var  array
      */
-    public $categoryName = array();
+    public $categoryName = [];
 
     /**
      * The category tree
      *
      * @var  array
      */
-    public $catTree = array();
+    public $catTree = [];
 
     /**
      * The children nodes
      *
      * @var  array
      */
-    private $children = array();
+    private $children = [];
 
     /**
      * The current language
@@ -100,14 +100,14 @@ class PMF_Category
      *
      * @var  array
      */
-    private $lineTab = array();
+    private $lineTab = [];
 
     /**
      * The tree with the tabs
      *
      * @var  array
      */
-    public $treeTab = array();
+    public $treeTab = [];
 
     /**
      * Symbol for each item
@@ -132,9 +132,10 @@ class PMF_Category
      *
      * @return PMF_Category
      */
-    public function __construct(PMF_Configuration $config, $groups = array(), $withperm = true)
+    public function __construct(PMF_Configuration $config, $groups = [], $withperm = true)
     {
         $this->_config = $config;
+
         $this->setGroups($groups);
         $this->setLanguage($this->_config->getLanguage()->getLanguage());
 
@@ -176,13 +177,14 @@ class PMF_Category
 
         if ($withperm) {
             $where = sprintf("
-            WHERE
-                ( fg.group_id IN (%s)
-            OR
-                (fu.user_id = %d AND fg.group_id IN (%s)))",
-            implode(', ', $this->groups),
-            $this->user,
-            implode(', ', $this->groups));
+                WHERE
+                    ( fg.group_id IN (%s)
+                OR
+                    (fu.user_id = %d AND fg.group_id IN (%s)))",
+                implode(', ', $this->groups),
+                $this->user,
+                implode(', ', $this->groups)
+            );
         }
 
         if (isset($this->language) && preg_match("/^[a-z\-]{2,}$/", $this->language)) {
@@ -303,7 +305,7 @@ class PMF_Category
      */
     public function buildTree($id_parent = 0, $indent = 0)
     {
-        $tt = array();
+        $tt = [];
         $x = 0;
         $loop = 0;
 
@@ -316,7 +318,7 @@ class PMF_Category
 
         if ($x != 0) {
             foreach ($tt as $d) {
-                $tmp = array();
+                $tmp = [];
                 if (isset($this->categories[$d])) {
                     foreach ($this->categories[$d] as $key => $value) {
                         $tmp[$key] = $value;
@@ -377,8 +379,8 @@ class PMF_Category
     public function transform($id)
     {
         $thisParent_id = 0;
-        $tree          = array();
-        $tabs          = isset($this->children[$id]) ? array_keys($this->children[$id]) : array();
+        $tree          = [];
+        $tabs          = isset($this->children[$id]) ? array_keys($this->children[$id]) : [];
         $num           = count($tabs);
 
         if ($id > 0) {
@@ -391,7 +393,7 @@ class PMF_Category
         if ($num > 0) {
             $symbol = 'minus';
         } else {
-            $temp = isset($this->children[$thisParent_id]) ? array_keys($this->children[$thisParent_id]) : array();
+            $temp = isset($this->children[$thisParent_id]) ? array_keys($this->children[$thisParent_id]) : [];
             if (isset($temp[count($temp)-1])) {
                 $symbol = ($id == $temp[count($temp)-1]) ? 'angle' : 'medium';
             }
@@ -452,7 +454,7 @@ class PMF_Category
      */
     public function getChildren($id)
     {
-        return isset($this->children[$id]) ? array_keys($this->children[$id]) : array();
+        return isset($this->children[$id]) ? array_keys($this->children[$id]) : [];
     }
 
     /**
@@ -463,7 +465,7 @@ class PMF_Category
      */
     public function getChildNodes($id)
     {
-        $childs = array();
+        $childs = [];
 
         if (isset($this->children[$id])) {
             foreach(array_keys($this->children[$id]) as $childId) {
@@ -496,7 +498,7 @@ class PMF_Category
     {
         if (($id > 0) && (isset($this->categoryName[$id]['level']))) {
             $thisLevel = $this->categoryName[$id]['level'];
-            $temp = array();
+            $temp = [];
             for ($i = $thisLevel; $i > 0; $i--) {
                 $id = $this->categoryName[$id]['parent_id'];
                 array_unshift($temp, $id);
@@ -580,8 +582,10 @@ class PMF_Category
     */
     public function viewTree()
     {
-        global $sids, $PMF_LANG, $plr;
+        global $sids, $plr;
+
         $totFaqRecords = 0;
+        $number = [];
 
         $query = sprintf("
             SELECT
@@ -610,20 +614,30 @@ class PMF_Category
             PMF_Db::getTablePrefix(),
             PMF_Db::getTablePrefix());
         $result = $this->_config->getDb()->query($query);
+
         if ($this->_config->getDb()->numRows($result) > 0) {
             while ($row = $this->_config->getDb()->fetchObject($result)) {
                 $number[$row->category_id] = $row->number;
             }
         }
+
         $output = "<ul>\n";
-        $open = 0;
+        $open   = 0;
         $this->expandAll();
 
         for ($y = 0 ;$y < $this->height(); $y = $this->getNextLineTree($y)) {
 
-            list($symbol, $categoryName, $parent, $description) = $this->getLineDisplay($y);
-            $level = $this->treeTab[$y]['level'];
+            list($hasChild, $categoryName, $parent, $description) = $this->getLineDisplay($y);
+            $level     = $this->treeTab[$y]['level'];
             $leveldiff = $open - $level;
+
+            if (!isset($number[$parent])) {
+                $number[$parent] = 0;
+            }
+
+            if ($this->_config->get('records.hideEmptyCategories') && 0 === $number[$parent] && '-' === $hasChild) {
+                continue;
+            }
 
             if ($leveldiff > 1) {
                 $output .= '</li>';
@@ -632,10 +646,6 @@ class PMF_Category
                         str_repeat("\t", $level + $i + 1),
                         str_repeat("\t", $level + $i));
                 }
-            }
-
-            if (!isset($number[$parent])) {
-                $number[$parent] = 0;
             }
 
             if ($level < $open) {
@@ -657,18 +667,20 @@ class PMF_Category
                 $output .= str_repeat("\t", $level + 1)."<li>";
             }
 
-            if (0 == $number[$parent] && 0 == $level) {
-                $num_entries = '';
+            if (0 === $number[$parent] && 0 === $level) {
+                $numFaqs = '';
             } else {
                 $totFaqRecords += $number[$parent];
-                $num_entries    = '<span class="rssCategoryLink"> ('.$plr->GetMsg('plmsgEntries',$number[$parent]);
-                $num_entries   .= sprintf(
-                    ' <a href="feed/category/rss.php?category_id=%d&category_lang=%s" target="_blank"><img id="category_%d_RSS" src="assets/img/feed.png" width="16" height="16" alt="RSS"></a>',
-                    $parent,
-                    $this->language,
-                    $parent
-                );
-                $num_entries   .= ')</span>';
+                $numFaqs = '<span class="rssCategoryLink"> (' . $plr->GetMsg('plmsgEntries', $number[$parent]);
+                if ($this->_config->get('main.enableRssFeeds')) {
+                    $numFaqs .= sprintf(
+                        ' <a href="feed/category/rss.php?category_id=%d&category_lang=%s" target="_blank"><i class="fa fa-rss"></i></a>',
+                        $parent,
+                        $this->language,
+                        $parent
+                    );
+                }
+                $numFaqs .= ')</span>';
             }
 
             $url = sprintf(
@@ -682,7 +694,7 @@ class PMF_Category
             $oLink->text      = $categoryName;
             $oLink->tooltip   = $description;
 
-            $output .= $oLink->toHtmlAnchor() . $num_entries;
+            $output .= $oLink->toHtmlAnchor() . $numFaqs;
             $open    = $level;
         }
 
@@ -693,6 +705,7 @@ class PMF_Category
         $output .= "\t</li>\n";
         $output .= "\t</ul>\n";
         $output .= '<span id="totFaqRecords" style="display: none;">'.$totFaqRecords."</span>\n";
+
         return $output;
     }
 
@@ -793,14 +806,14 @@ class PMF_Category
      * @param string  $useCssClass       Use CSS class "breadcrumb"
      * @return string
      */
-    public function getPath($id, $separator = ' &raquo; ', $renderAsMicroData = false, $useCssClass = 'breadcrumb')
+    public function getPath($id, $separator = ' / ', $renderAsMicroData = false, $useCssClass = 'breadcrumb')
     {
         global $sids;
 
         $ids = $this->getNodes($id);
         $num = count($ids);
 
-        $temp = $catid = $desc = $breadcrumb = array();
+        $temp = $catid = $desc = $breadcrumb = [];
 
         for ($i = 0; $i < $num; $i++) {
             $t = $this->getLineCategory($ids[$i]);
@@ -846,7 +859,7 @@ class PMF_Category
             return sprintf(
                 '<ul class="%s">%s</ul>',
                 $useCssClass,
-                implode('<li class="divider">' . $separator . '</li>', $temp)
+                implode('', $temp)
             );
         } else {
             return implode($separator, $temp);
@@ -862,7 +875,7 @@ class PMF_Category
      */
     public function getCategoryRelationsFromArticle($record_id, $record_lang)
     {
-        $categories = array();
+        $categories = [];
 
         $query = sprintf("
             SELECT
@@ -925,7 +938,7 @@ class PMF_Category
 
         $result = $this->_config->getDb()->query($query);
         $num    = $this->_config->getDb()->numRows($result);
-        $this->categories = array();
+        $this->categories = [];
         if ($num > 0) {
             while ($row = $this->_config->getDb()->fetchArray($result)) {
                 $this->categories[] = $row;
@@ -960,7 +973,7 @@ class PMF_Category
     public function getCategoryIdsFromArticle($article_id)
     {
         $cats = $this->getCategoriesFromArticle($article_id);
-        $arr  = array();
+        $arr  = [];
         foreach ($cats as $cat) {
             $arr[] = $cat['id'];
         }
@@ -1264,7 +1277,7 @@ class PMF_Category
         global $languageCodes;
 
         $existcatlang = $this->_config->getLanguage()->languageAvailable($category_id, 'faqcategories');
-        $translated   = array();
+        $translated   = [];
 
         foreach ($existcatlang as $language) {
            $query = sprintf("
@@ -1451,7 +1464,7 @@ class PMF_Category
      */
     public function getPermissions($mode, Array $categories)
     {
-        $permissions = array();
+        $permissions = [];
         if (!($mode == "user" || $mode == "group")) {
             return false;
         }
@@ -1485,7 +1498,7 @@ class PMF_Category
      */
     public function getNumberOfRecordsOfCategory()
     {
-        $numRecordsByCat = array();
+        $numRecordsByCat = [];
 
         $query = sprintf("
             SELECT
@@ -1502,6 +1515,7 @@ class PMF_Category
             PMF_Db::getTablePrefix());
 
         $result = $this->_config->getDb()->query($query);
+
         if ($this->_config->getDb()->numRows($result) > 0) {
             while ($row = $this->_config->getDb()->fetchObject($result)) {
                 $numRecordsByCat[$row->category_id] = $row->number;
@@ -1518,7 +1532,7 @@ class PMF_Category
      */
     public function getCategoryRecordsMatrix()
     {
-        $matrix = array();
+        $matrix = [];
 
         $query = sprintf('
             SELECT

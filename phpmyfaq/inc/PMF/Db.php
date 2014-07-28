@@ -2,7 +2,7 @@
 /**
  * The database abstraction factory
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,7 +11,7 @@
  * @category  phpMyFAQ
  * @package   PMF_Db
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2003-2013 phpMyFAQ Team
+ * @copyright 2003-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2003-02-24
@@ -27,7 +27,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
  * @category  phpMyFAQ
  * @package   PMF_Db
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2003-2013 phpMyFAQ Team
+ * @copyright 2003-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2003-02-24
@@ -67,6 +67,7 @@ class PMF_Db
      * Database factory
      *
      * @param string $type Database management system type
+     *
      * @throws PMF_Exception
      *
      * @return PMF_DB_Driver
@@ -74,8 +75,13 @@ class PMF_Db
     public static function factory($type)
     {
         self::$dbType = $type;
-        $class = 'PMF_DB_' . ucfirst($type);
-        
+
+        if (0 === strpos($type, 'pdo_')) {
+            $class = 'PMF_DB_Pdo_' . ucfirst(substr($type, 4));
+        } else {
+            $class = 'PMF_DB_' . ucfirst($type);
+        }
+
         if (class_exists($class)) {
             self::$instance = new $class;
             return self::$instance;
@@ -134,7 +140,7 @@ class PMF_Db
     }
     
     /**
-     * Error page
+     * Error page, if the database connection is not possible
      *
      * @param string $method
      *
@@ -148,12 +154,14 @@ class PMF_Db
                 <meta charset="utf-8">
                 <title>Fatal phpMyFAQ Error</title>
                 <style type="text/css">
-                @import url(assets/template/default/style.css);
+                @import url(assets/template/default/css/style.min.css);
                 </style>
             </head>
             <body>
-                <p class="error">The connection to the database server could not be established.</p>
-                <p class="error">The error message of the database server:<br />' . $method . '</p>
+                <div class="container">
+                <p class="alert alert-danger">The connection to the database server could not be established.</p>
+                <p class="alert alert-danger">The error message of the database server:<br />' . $method . '</p>
+                </div>
             </body>
             </html>';
     }

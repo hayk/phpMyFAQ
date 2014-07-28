@@ -2,7 +2,7 @@
 /**
  * Select an attachment and save it
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -12,10 +12,10 @@
  * @package   Administration
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Anatoliy Belsky <ab@php.net>
- * @copyright 2002-2013 phpMyFAQ
+ * @copyright 2002-2014 phpMyFAQ
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
- * @since     2002-09-17 
+ * @since     2002-09-17
  */
 
 define('PMF_ROOT_DIR', dirname(__DIR__));
@@ -64,24 +64,6 @@ if ($user) {
     unset($user);
 }
 
-//
-// Get current user rights
-//
-$permission = array();
-if ($auth === true) {
-    // read all rights, set them FALSE
-    $allRights = $user->perm->getAllRightsData();
-    foreach ($allRights as $right) {
-        $permission[$right['name']] = false;
-    }
-    // check user rights, set them TRUE
-    $allUserRights = $user->perm->getAllUserRights($user->getUserId());
-    foreach ($allRights as $right) {
-        if (in_array($right['right_id'], $allUserRights))
-            $permission[$right['name']] = true;
-    }
-}
-
 if (is_null($currentAction) || !is_null($currentSave)) {
 ?>
 <!DOCTYPE html>
@@ -95,10 +77,10 @@ if (is_null($currentAction) || !is_null($currentSave)) {
 
     <title><?php echo $faqConfig->get('main.titleFAQ'); ?> - powered by phpMyFAQ</title>
     <base href="<?php echo $faqConfig->get('main.referenceURL'); ?>/admin/" />
-    
+
     <meta name="description" content="Only Chuck Norris can divide by zero.">
     <meta name="author" content="phpMyFAQ Team">
-    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="application-name" content="phpMyFAQ <?php echo $faqConfig->get('main.currentVersion'); ?>">
     <meta name="publisher" content="phpMyFAQ Team">
 
@@ -115,11 +97,11 @@ if (is_null($currentAction) || !is_null($currentSave)) {
 
 <?php
 }
-if (is_null($currentAction) && $auth && $permission['addattachment']) {
+if (is_null($currentAction) && $auth && $user->perm->checkRight($user->getUserId(), 'addattachment')) {
     $recordId   = filter_input(INPUT_GET, 'record_id',   FILTER_VALIDATE_INT);
     $recordLang = filter_input(INPUT_GET, 'record_lang', FILTER_SANITIZE_STRING);
 ?>
-        <form action="attachment.php?action=save" enctype="multipart/form-data" method="post">
+        <form action="attachment.php?action=save" enctype="multipart/form-data" method="post" accept-charset="utf-8">
             <fieldset>
             <legend>
                 <?php echo $PMF_LANG["ad_att_addto"]." ".$PMF_LANG["ad_att_addto_2"]; ?>
@@ -144,11 +126,12 @@ if (!isset($_SESSION['phpmyfaq_csrf_token']) || $_SESSION['phpmyfaq_csrf_token']
     $auth = false;
 }
 
-if (!is_null($currentAction) && $auth && !$permission['addattachment']) {
+if (!is_null($currentAction) && $auth && !$user->perm->checkRight($user->getUserId(), 'addattachment')) {
     echo $PMF_LANG['err_NotAuth'];
 }
 
-if (!is_null($currentSave) && $currentSave == true && $auth && $permission['addattachment']) {
+if (!is_null($currentSave) && $currentSave == true && $auth &&
+    $user->perm->checkRight($user->getUserId(), 'addattachment')) {
     $recordId   = filter_input(INPUT_POST, 'record_id',   FILTER_VALIDATE_INT);
     $recordLang = filter_input(INPUT_POST, 'record_lang', FILTER_SANITIZE_STRING);
 ?>
@@ -159,14 +142,14 @@ if (!is_null($currentSave) && $currentSave == true && $auth && $permission['adda
         $att = PMF_Attachment_Factory::create();
         $att->setRecordId($recordId);
         $att->setRecordLang($recordLang);
-        
+
         /**
          * To add user defined key
          * $att->setKey($somekey, false);
          */
         try {
             $uploaded = $att->save($_FILES["userfile"]["tmp_name"], $_FILES["userfile"]["name"]);
-            
+
             if ($uploaded) {
                 echo "<p>".$PMF_LANG["ad_att_suc"]."</p>";
             } else {
@@ -204,7 +187,8 @@ if (!is_null($currentSave) && $currentSave == true && $auth && $permission['adda
 
 
 }
-if (!is_null($currentSave) && $currentSave == true && $auth && !$permission['addattachment']) {
+if (!is_null($currentSave) && $currentSave == true && $auth &&
+    !$user->perm->checkRight($user->getUserId(), 'addattachment')) {
     echo $PMF_LANG["err_NotAuth"];
 }
 

@@ -2,7 +2,7 @@
 /**
  * The fulltext search page
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,7 +11,7 @@
  * @category  phpMyFAQ
  * @package   Frontend
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2002-2013 phpMyFAQ Team
+ * @copyright 2002-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2002-09-16
@@ -20,19 +20,30 @@
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
-$faqsession->userTracking('fulltext_search', 0);
+try {
+    $faqsession->userTracking('fulltext_search', 0);
+} catch (PMF_Exception $e) {
+    // @todo handle the exception
+}
 
 // Get possible user input
 $inputLanguage   = PMF_Filter::filterInput(INPUT_GET, 'langs', FILTER_SANITIZE_STRING);
 $inputCategory   = PMF_Filter::filterInput(INPUT_GET, 'searchcategory', FILTER_VALIDATE_INT, '%');
-$inputTag        = PMF_Filter::filterInput(INPUT_GET, 'tagging_id', FILTER_VALIDATE_INT);
 $inputSearchTerm = PMF_Filter::filterInput(INPUT_GET, 'suchbegriff', FILTER_SANITIZE_STRIPPED);
-$search          = PMF_Filter::filterInput(INPUT_GET, 'search', FILTER_SANITIZE_STRIPPED);
-$page            = PMF_Filter::filterInput(INPUT_GET, 'seite', FILTER_VALIDATE_INT, 1);
+$inputTag        = PMF_Filter::filterInput(INPUT_GET, 'tagging_id', FILTER_SANITIZE_STRING);
+$inputTag        = str_replace(' ', '', $inputTag);
+$inputTag        = str_replace(',,', ',', $inputTag);
+
+$search = PMF_Filter::filterInput(INPUT_GET, 'search', FILTER_SANITIZE_STRIPPED);
+$page   = PMF_Filter::filterInput(INPUT_GET, 'seite', FILTER_VALIDATE_INT, 1);
 
 // Search only on current language (default)
 if (!is_null($inputLanguage)) {
@@ -58,16 +69,66 @@ if (is_null($user)) {
 
 $faqSearch       = new PMF_Search($faqConfig);
 $faqSearchResult = new PMF_Search_Resultset($user, $faq, $faqConfig);
+$tagging         = new PMF_Tags($faqConfig);
+$tagHelper       = new PMF_Helper_Tags();
 $tagSearch       = false;
 
 //
 // Handle the Tagging ID
 //
-if (!is_null($inputTag)) {
-    $tagSearch    = true;
-    $tagging      = new PMF_Tags($faqConfig);
-    $recordIds    = $tagging->getRecordsByTagId($inputTag);
-    $searchResult = $faq->showAllRecordsByIds($recordIds);
+if (! is_null($inputTag) && '' !== $inputTag) {
+    $tagSearch = true;
+    $tags      = [];
+    $tagIds    = explode(',', $inputTag);
+
+    $tagHelper->setTaggingIds($tagIds);
+
+    foreach ($tagIds as $tagId) {
+        if (! isset($tags[$tagId])) {
+            $tags[$tagId] = $tagging->getTagNameById($tagId);
+        }
+    }
+
+    $recordIds = $tagging->getRecordsByIntersectionTags($tags);
+
+    if (0 === count($recordIds)) {
+        $searchResult = '';
+    } else {
+        $relatedTags = [];
+
+        foreach ($recordIds as $recordId) {
+
+            $resultTags = $tagging->getAllTagsById($recordId);
+            foreach ($resultTags as $resultTagId => $resultTagName) {
+                if (isset($tags[$resultTagId])) { 
+                    // if the given tag is in the search term we don't want to list it
+                    continue;
+                }
+
+                if (isset($relatedTags[$resultTagId])) {
+                    $relatedTags[$resultTagId]++;
+                } else {
+                    $relatedTags[$resultTagId]=1;
+                }
+            }
+        }
+
+        uasort($relatedTags, function($a, $b) {
+            return ($b - $a);
+            }
+        );
+        $numTags = 0;
+        $relTags = '';
+
+        foreach ($relatedTags as $tagId => $relevance) {
+
+            $relTags .= $tagHelper->renderRelatedTag($tagId, $tagging->getTagNameById($tagId), $relevance);
+            if ($numTags++ > 20) {
+                break;
+            }
+        }
+        $searchResult = $faq->showAllRecordsByIds($recordIds);
+    }
 } else {
     $searchResult = '';
 }
@@ -86,9 +147,9 @@ if (!is_null($inputSearchTerm) || !is_null($search)) {
     $faqSearch->setCategory($category);
     $faqSearch->setCategoryId($inputCategory);
     $searchResults = $faqSearch->search($inputSearchTerm, $allLanguages);
-    
+
     $faqSearchResult->reviewResultset($searchResults);
-    
+
     $inputSearchTerm = stripslashes($inputSearchTerm);
     $faqSearch->logSearchTerm($inputSearchTerm);
 }
@@ -96,11 +157,16 @@ if (!is_null($inputSearchTerm) || !is_null($search)) {
 // Change a little bit the $searchCategory value;
 $inputCategory = ('%' == $inputCategory) ? 0 : $inputCategory;
 
-$faqsession->userTracking('fulltext_search', $inputSearchTerm);
+try {
+    $faqsession->userTracking('fulltext_search', $inputSearchTerm);
+
+} catch (PMF_Exception $e) {
+    // @todo handle the exception
+}
 
 if (is_numeric($inputSearchTerm) && PMF_SOLUTION_ID_START_VALUE <= $inputSearchTerm && 
-    0 < $faqSearchResult->getNumberOfResults()) {
-    
+    0 < $faqSearchResult->getNumberOfResults() && $faqConfig->get('search.searchForSolutionId')) {
+
     // Before a redirection we must force the PHP session update for preventing data loss
     session_write_close();
     if ($faqConfig->get('main.enableRewriteRules')) {
@@ -143,7 +209,7 @@ $options = array(
     'total'           => $faqSearchResult->getNumberOfResults(),
     'perPage'         => $faqConfig->get('records.numberOfRecordsPerPage'),
     'pageParamName'   => 'seite',
-    'layoutTpl'       => '<div class="pagination text-center"><ul>{LAYOUT_CONTENT}</ul></div>'
+    'layoutTpl'       => '<div class="text-center"><ul class="pagination">{LAYOUT_CONTENT}</ul></div>'
 );
 
 $faqPagination  = new PMF_Pagination($faqConfig, $options);
@@ -161,20 +227,60 @@ if ('' == $searchResult && !is_null($inputSearchTerm)) {
     $searchResult = $searchHelper->renderSearchResult($faqSearchResult, $page);
 }
 
-$tpl->parse('writeContent', array(
-    'msgAdvancedSearch'        => ($tagSearch ? $PMF_LANG['msgTagSearch'] : $PMF_LANG['msgAdvancedSearch']),
-    'msgSearch'                => $PMF_LANG['msgSearch'],
-    'searchString'             => PMF_String::htmlspecialchars($inputSearchTerm, ENT_QUOTES, 'utf-8'),
-    'searchOnAllLanguages'     => $PMF_LANG['msgSearchOnAllLanguages'],
-    'checkedAllLanguages'      => $allLanguages ? ' checked="checked"' : '',
-    'selectCategories'         => $PMF_LANG['msgSelectCategories'],
-    'allCategories'            => $PMF_LANG['msgAllCategories'],
-    'printCategoryOptions'     => $categoryHelper->renderOptions($inputCategory),
-    'writeSendAdress'          => '?'.$sids.'action=search',
-    'msgSearchWord'            => $PMF_LANG['msgSearchWord'],
-    'printResult'              => $searchResult,
-    'openSearchLink'           => $searchHelper->renderOpenSearchLink(),
-    'msgMostPopularSearches'   => $PMF_LANG['msgMostPopularSearches'],
-    'printMostPopularSearches' => $searchHelper->renderMostPopularSearches($mostPopularSearchData)));
+if ($tagSearch) {
+    $tpl->parseBlock(
+        'writeContent',
+        'searchTagsSection',
+        array(
+            'searchTags' => $tagHelper->renderTagList($tags)
+        )
+    );
+    $tpl->parseBlock(
+        'writeContent',
+        'relatedTags',
+        array(
+            'relatedTagsHeader' => $PMF_LANG['msgRelatedTags'],
+            'relatedTags'       => $relTags
+        )
+    );
+} else {
+    if ('' === $search) {
+        $tpl->parseBlock(
+            'writeContent',
+            'tagListSection',
+            array(
+                'msgTags' => $PMF_LANG['msgPopularTags'],
+                'tagList' => $tagging->renderPopularTags(0)
+            )
+        );
+    }
+
+    $tpl->parseBlock(
+        'writeContent',
+        'searchBoxSection',
+        array(
+            'writeSendAdress'          => '?' . $sids.'action=search',
+            'searchString'             => PMF_String::htmlspecialchars($inputSearchTerm, ENT_QUOTES, 'utf-8'),
+            'searchOnAllLanguages'     => $PMF_LANG['msgSearchOnAllLanguages'],
+            'checkedAllLanguages'      => $allLanguages ? ' checked="checked"' : '',
+            'selectCategories'         => $PMF_LANG['msgSelectCategories'],
+            'allCategories'            => $PMF_LANG['msgAllCategories'],
+            'printCategoryOptions'     => $categoryHelper->renderOptions($inputCategory),
+            'msgSearch'                => $PMF_LANG['msgSearch'],
+            'openSearchLink'           => $searchHelper->renderOpenSearchLink()
+        )
+    );
+}
+
+$tpl->parse(
+    'writeContent',
+    array(
+        'msgAdvancedSearch'        => ($tagSearch ? $PMF_LANG['msgTagSearch'] : $PMF_LANG['msgAdvancedSearch']),
+        'msgSearchWord'            => $PMF_LANG['msgSearchWord'],
+        'printResult'              => $searchResult,
+        'msgMostPopularSearches'   => $PMF_LANG['msgMostPopularSearches'],
+        'printMostPopularSearches' => $searchHelper->renderMostPopularSearches($mostPopularSearchData)
+    )
+);
 
 $tpl->merge('writeContent', 'index');

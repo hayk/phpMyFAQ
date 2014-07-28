@@ -2,7 +2,7 @@
 /**
  * The main stop words configuration frontend
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,41 +11,52 @@
  * @category  phpMyFAQ
  * @package   Administration
  * @author    Anatoliy Belsky <ab@php.net>
- * @copyright 2009-2013 phpMyFAQ Team
+ * @copyright 2009-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2009-04-01
  */
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
-if ($permission['editconfig']) {
-    printf('<header><h2><i class="icon-wrench"></i> %s</h2></header>', $PMF_LANG['ad_menu_stopwordsconfig']);
+if ($user->perm->checkRight($user->getUserId(), 'editconfig')) {
+    printf(
+        '<header class="row"><div class="col-lg-12"><h2 class="page-header"><i class="fa fa-wrench fa-fw"></i> %s</h2></div></header>',
+        $PMF_LANG['ad_menu_stopwordsconfig']
+    );
 
     $sortedLanguageCodes = $languageCodes;
     asort($sortedLanguageCodes);
     reset($sortedLanguageCodes);
 ?>
-        <p>
-            <?php echo $PMF_LANG['ad_stopwords_desc'] ?>
-        </p>
-        <p>
-            <select onchange="loadStopWordsByLang(this.options[this.selectedIndex].value)" id="stopwords_lang_selector">
-            <option value="none">---</option>
-<?php foreach($sortedLanguageCodes as $key => $value) { ?>
-    <option value="<?php echo strtolower($key); ?>"><?php echo $value; ?></option>    
-<?php } ?>
-            </select>
-            <span id="stopwords_loading_indicator"></span>
-        </p>
+    <div class="row">
+        <div class="col-lg-12">
 
-        <div id="stopwords_content"></div>
+            <p>
+                <?php echo $PMF_LANG['ad_stopwords_desc'] ?>
+            </p>
+            <p>
+                <select onchange="loadStopWordsByLang(this.options[this.selectedIndex].value)"
+                        id="stopwords_lang_selector">
+                <option value="none">---</option>
+    <?php foreach($sortedLanguageCodes as $key => $value) { ?>
+        <option value="<?php echo strtolower($key); ?>"><?php echo $value; ?></option>
+    <?php } ?>
+                </select>
+                <span id="stopwords_loading_indicator"></span>
+            </p>
 
-        <script type="text/javascript">
-        /* <![CDATA[ */
+            <div id="stopwords_content"></div>
+
+            <script type="text/javascript">
+            /* <![CDATA[ */
 
         /**
          * column count in the stop words table
@@ -116,7 +127,7 @@ if ($permission['editconfig']) {
             }
 
             html += '</table>';
-            html += '<a class="btn btn-primary" href="javascript: addStopWordInputElem();"><i class="icon-add icon-white"></i> <?php echo $PMF_LANG['ad_config_stopword_input'] ?></a>';
+            html += '<a class="btn btn-primary" href="javascript: addStopWordInputElem();"><i class="fa fa-add fa fa-white"></i> <?php echo $PMF_LANG['ad_config_stopword_input'] ?></a>';
 
             return html;
         }
@@ -135,7 +146,7 @@ if ($permission['editconfig']) {
             elem_id = elem_id || buildStopWordInputElemId();
             stopword = stopword || '';
             var attrs = 'onblur="saveStopWord(this.id)" onkeydown="saveStopWordHandleEnter(this.id, event)" onfocus="saveOldValue(this.id)"';
-            var element = '<input id="' + elem_id + '" value="' + stopword + '" ' + attrs + ' />';
+            var element = '<input class="form-control" id="' + elem_id + '" value="' + stopword + '" ' + attrs + '>';
 
             return element;
         }
@@ -287,6 +298,8 @@ if ($permission['editconfig']) {
         }
         /* ]]> */
         </script>
+        </div>
+    </div>
 <?php
 } else {
     echo $PMF_LANG['err_NotAuth'];

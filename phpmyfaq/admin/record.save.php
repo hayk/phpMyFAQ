@@ -2,7 +2,7 @@
 /**
  * Save an existing FAQ record.
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,22 +11,26 @@
  * @category  phpMyFAQ
  * @package   Administration
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2003-2013 phpMyFAQ Team
+ * @copyright 2003-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2003-02-23
  */
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
-$category = new PMF_Category($faqConfig, array(), false);
+$category = new PMF_Category($faqConfig, [], false);
 $category->setUser($currentAdminUser);
 $category->setGroups($currentAdminGroups);
 
-if ($permission['editbt']) {
+if ($user->perm->checkRight($user->getUserId(), 'editbt')) {
 
     // Get submit action
     $submit = PMF_Filter::filterInputArray(
@@ -54,7 +58,7 @@ if ($permission['editbt']) {
     );
     $recordLang = PMF_Filter::filterInput(INPUT_POST, 'lang', FILTER_SANITIZE_STRING);
     $tags       = PMF_Filter::filterInput(INPUT_POST, 'tags', FILTER_SANITIZE_STRING);
-    $active     = 'yes' == PMF_Filter::filterInput(INPUT_POST, 'active', FILTER_SANITIZE_STRING) && $permission['approverec'] ? 'yes' : 'no';
+    $active     = 'yes' == PMF_Filter::filterInput(INPUT_POST, 'active', FILTER_SANITIZE_STRING) && $user->perm->checkRight($user->getUserId(), 'approverec') ? 'yes' : 'no';
     $sticky     = PMF_Filter::filterInput(INPUT_POST, 'sticky', FILTER_SANITIZE_STRING);
     $content    = PMF_Filter::filterInput(INPUT_POST, 'answer', FILTER_SANITIZE_SPECIAL_CHARS);
     $keywords   = PMF_Filter::filterInput(INPUT_POST, 'keywords', FILTER_SANITIZE_STRING);
@@ -69,7 +73,7 @@ if ($permission['editbt']) {
     $date       = PMF_Filter::filterInput(INPUT_POST, 'date', FILTER_SANITIZE_STRING);
     
     // Permissions
-    $permissions = array();
+    $permissions = [];
     if ('all' === PMF_Filter::filterInput(INPUT_POST, 'userpermission', FILTER_SANITIZE_STRING)) {
         $permissions += array(
             'restricted_user' => array(
@@ -108,7 +112,7 @@ if ($permission['editbt']) {
         $logging->logAdmin($user, 'Beitragsave ' . $recordId);
 
         printf(
-            '<header><h2><i class="icon-pencil"></i> %s</h2></header>',
+            '<header><h2 class="page-header"><i class="fa fa-pencil"></i> %s</h2></header>',
             $PMF_LANG['ad_entry_aor']
         );
 
@@ -157,13 +161,13 @@ if ($permission['editbt']) {
             PMF_Helper_Linkverifier::linkOndemandJavascript($recordId, $recordLang);
         } else {
             printf(
-                '<p class="alert alert-error">%s</p>',
+                '<p class="alert alert-danger">%s</p>',
                 print $PMF_LANG['ad_entry_savedfail'] . $faqConfig->getDb()->error()
             );
         }
         
         if (!isset($categories['rubrik'])) {
-            $categories['rubrik'] = array();
+            $categories['rubrik'] = [];
         }
         
         // delete category relations
@@ -173,7 +177,7 @@ if ($permission['editbt']) {
 
         // Insert the tags
         if ($tags != '') {
-            $tagging->saveTags($recordId, explode(',', $tags));
+            $tagging->saveTags($recordId, explode(',', trim($tags)));
         } else {
             $tagging->deleteTagsFromRecordId($recordId);
         }
@@ -203,9 +207,6 @@ if ($permission['editbt']) {
     </script>
 <?php
     }
-
-    // Clear the article cache and the related stuff
-    PMF_Cache::getInstance()->clearArticle($recordId);
 } else {
     print $PMF_LANG['err_NotAuth'];
 }

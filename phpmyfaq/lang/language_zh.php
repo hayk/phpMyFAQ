@@ -6,7 +6,7 @@
  * @author    saphrfans <saphrfans@yahoo.com>
  * @author    Techice.Young <techice.young@prettymay.net>
  * @since     2004-06-23
- * @copyright 2004-2013 phpMyFAQ Team
+ * @copyright 2004-2014 phpMyFAQ Team
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -561,7 +561,7 @@ $PMF_LANG['ad_export_gen_docbook'] = '制作Docbook文件';
 $PMF_LANG['ad_news_data'] = '公告数据';
 $PMF_LANG['ad_news_author_name'] = '作者：';
 $PMF_LANG['ad_news_author_email'] = '作者E-mail：';
-$PMF_LANG['ad_news_set_active'] = '激活：';
+$PMF_LANG['ad_news_set_active'] = '激活';
 $PMF_LANG['ad_news_allowComments'] = '允许评论：';
 $PMF_LANG['ad_news_expiration_window'] = '公告过期时间窗（可选）';
 $PMF_LANG['ad_news_from'] = '从：';

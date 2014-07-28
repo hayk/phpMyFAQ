@@ -12,6 +12,12 @@
             </article>
             <!-- /News -->
 
+            <script>
+                $(function(){
+                    $('abbr[rel="tooltip"]').tooltip();
+                });
+            </script>
+
             <ul id="tab" class="nav nav-tabs">
                 <li><a href="#authorInfo" data-toggle="tab">{msgAboutThisNews}</a></li>
             </ul>
@@ -27,7 +33,7 @@
             <!-- Comment Form -->
             <a name="comment"></a>
             <div id="commentForm" style="display: none;">
-                <form id="formValues" action="#" method="post" class="form-horizontal">
+                <form id="formValues" action="#" method="post" class="form-horizontal" accept-charset="utf-8">
                     <input type="hidden" name="newsid" value="{newsId}" />
                     <input type="hidden" name="lang" value="{newsLang}" />
                     <input type="hidden" name="type" value="news" />

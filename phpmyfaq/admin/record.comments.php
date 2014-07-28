@@ -2,7 +2,7 @@
 /**
  * Shows all comments in the categories and provides a link to delete comments
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,28 +11,32 @@
  * @category  phpMyFAQ
  * @package   Administration
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2007-2013 phpMyFAQ Team
+ * @copyright 2007-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2007-03-04
  */
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
 printf(
-    '<header><h2><i class="icon-pencil"></i> %s</h2></header>',
+    '<header><h2 class="page-header"><i class="fa fa-pencil"></i> %s</h2></header>',
     $PMF_LANG['ad_comment_administration']
 );
 
 echo '<div id="returnMessage"></div>';
 
-if ($permission['delcomment']) {
+if ($user->perm->checkRight($user->getUserId(), 'delcomment')) {
 
     $comment  = new PMF_Comment($faqConfig);
-    $category = new PMF_Category($faqConfig, array(), false);
+    $category = new PMF_Category($faqConfig, [], false);
     $category->setUser($currentAdminUser);
     $category->setGroups($currentAdminGroups);
     $faq      = new PMF_Faq($faqConfig);
@@ -44,7 +48,7 @@ if ($permission['delcomment']) {
     printf("<header><h3>%s</h3></header>\n", $PMF_LANG['ad_comment_faqs']);
     if (count($faqcomments)) {
 ?>
-        <form id="faqCommentSelection" name="faqCommentSelection" method="post">
+        <form id="faqCommentSelection" name="faqCommentSelection" method="post" accept-charset="utf-8">
         <input type="hidden" name="ajax" value="comment" />
         <input type="hidden" name="ajaxaction" value="delete" />
         <table class="table table-striped">
@@ -98,7 +102,7 @@ if ($permission['delcomment']) {
     printf("<header><h3>%s</h3></header>\n", $PMF_LANG['ad_comment_news']);
     if (count($newscomments)) {
 ?>
-        <form id="newsCommentSelection" name="newsCommentSelection" method="post">
+        <form id="newsCommentSelection" name="newsCommentSelection" method="post" accept-charset="utf-8">
         <input type="hidden" name="ajax" value="comment" />
         <input type="hidden" name="ajaxaction" value="delete" />
         <table class="table table-striped">
@@ -160,7 +164,7 @@ if ($permission['delcomment']) {
                             html('<p class="alert alert-success"><?php print $PMF_LANG['ad_entry_commentdelsuc']; ?></p>');
                     } else {
                         $('#returnMessage').
-                            html('<p class="alert alert-error"><?php print $PMF_LANG["ad_entry_commentdelfail"] ?></p>');
+                            html('<p class="alert alert-danger"><?php print $PMF_LANG["ad_entry_commentdelfail"] ?></p>');
                     }
                 }
             });

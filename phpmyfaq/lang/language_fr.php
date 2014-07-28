@@ -2,7 +2,7 @@
 /**
  * The French language file - try to be the best
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -14,7 +14,7 @@
  * @author    Thomas Bassetto <tbassetto@gmail.com>
  * @author    Laurent J.V. Dubois <laurent.dubois@ljvd.com>
  * @author    Cédric Frayssinet
- * @copyright 2004-2013 phpMyFAQ Team
+ * @copyright 2004-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2004-02-19
@@ -595,7 +595,7 @@ $PMF_LANG['ad_export_cat_downwards'] = 'Vers le bas ?';
 $PMF_LANG['ad_news_data'] = 'Contenu de l\'actualité';
 $PMF_LANG['ad_news_author_name'] = 'Nom de l\'auteur :';
 $PMF_LANG['ad_news_author_email'] = 'Email de l\'auteur :';
-$PMF_LANG['ad_news_set_active'] = 'Activée :';
+$PMF_LANG['ad_news_set_active'] = 'Activée';
 $PMF_LANG['ad_news_allowComments'] = 'Autoriser les commentaires :';
 $PMF_LANG['ad_news_expiration_window'] = 'Définir un intervalle de temps pour cette actualité (optionnel)';
 $PMF_LANG['ad_news_from'] = 'De :';

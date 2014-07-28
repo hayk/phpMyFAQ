@@ -2,7 +2,7 @@
 /**
  * The main admin backend index file
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -15,7 +15,7 @@
  * @author    Meikel Katzengreis <meikel@katzengreis.com>
  * @author    Minoru TODA <todam@netjapan.co.jp>
  * @author    Matteo Scaramuccia <matteo@phpmyfaq.de>
- * @copyright 2002-2013 phpMyFAQ Team
+ * @copyright 2002-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2002-09-16
@@ -81,10 +81,9 @@ PMF_Attachment_Factory::init(
 );
 
 //
-// Initiazile caching
+// Create a new phpMyFAQ system object
 //
-PMF_Cache::init($faqConfig);
-
+$faqSystem = new PMF_System();
 
 //
 // Create a new FAQ object
@@ -142,14 +141,12 @@ if (!is_null($faqusername) && !is_null($faqpassword)) {
             $auth = true;
         } else {
             $error = $PMF_LANG['ad_auth_fail'];
-            $user  = null;
         }
     } else {
         // error
         $logging = new PMF_Logging($faqConfig);
         $logging->logAdmin($user, 'Loginerror\nLogin: '.$faqusername.'\nErrors: ' . implode(', ', $user->errors));
         $error = $PMF_LANG['ad_auth_fail'];
-        $user  = null;
     }
 } else {
     // Try to authenticate with cookie information
@@ -160,31 +157,14 @@ if (!is_null($faqusername) && !is_null($faqpassword)) {
     }
     if ($user instanceof PMF_User_CurrentUser) {
         $auth = true;
-    } else {
-        $user = null;
-    }
-}
-
-// get user rights
-$permission = array();
-if (isset($auth)) {
-    // read all rights, set them FALSE
-    $allRights = $user->perm->getAllRightsData();
-    foreach ($allRights as $right) {
-        $permission[$right['name']] = false;
-    }
-    // check user rights, set them TRUE
-    $allUserRights = $user->perm->getAllUserRights($user->getUserId());
-    foreach ($allRights as $right) {
-        if (in_array($right['right_id'], $allUserRights))
-            $permission[$right['name']] = true;
+    }  else {
+        $user = new PMF_User_CurrentUser($faqConfig);
     }
 }
 
 // logout
 if ($action == 'logout' && $auth) {
     $user->deleteFromSession(true);
-    $user = null;
     $auth = null;
     $ssoLogout = $faqConfig->get('security.ssoLogoutRedirect');
     if ($faqConfig->get('security.ssoSupport') && !empty ($ssoLogout)) {
@@ -215,7 +195,7 @@ if (is_null($_ajax)) {
 }
 
 // if performing AJAX operation, needs to branch before header.php
-if (isset($auth) && in_array(true, $permission)) {
+if (isset($auth) && count($user->perm->getAllUserRights($user->getUserId())) > 0) {
     if (isset($action) && isset($_ajax)) {
         if ($action == 'ajax') {
 
@@ -274,7 +254,7 @@ $twig = new Twig_Environment(
 require 'header.php';
 
 // User is authenticated
-if (isset($auth) && in_array(true, $permission)) {
+if (isset($auth) && count($user->perm->getAllUserRights($user->getUserId())) > 0) {
     if (!is_null($action)) {
         // the various sections of the admin area
         switch ($action) {
@@ -292,7 +272,6 @@ if (isset($auth) && in_array(true, $permission)) {
             case "editpreview":       require 'record.edit.php'; break;
             case "insertentry":       require 'record.add.php'; break;
             case "saveentry":         require 'record.save.php'; break;
-            case "delentry":          require 'record.delete.php'; break;
             case "delatt":            require 'record.delatt.php'; break;
             case "question":          require 'record.questions.php'; break;
             case 'comments':          require 'record.comments.php'; break;
@@ -334,6 +313,7 @@ if (isset($auth) && in_array(true, $permission)) {
             case "sessionbrowse":     require 'stat.browser.php'; break;
             case "viewsession":       require 'stat.show.php'; break;
             case "statistics":        require 'stat.ratings.php'; break;
+            case 'truncatesearchterms':
             case "searchstats":       require 'stat.search.php'; break;
             // Reports
             case 'reports':           require 'report.main.php'; break;

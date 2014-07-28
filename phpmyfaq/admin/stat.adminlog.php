@@ -2,7 +2,7 @@
 /**
  * Overview of actions in the admin section
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  *  http://www.mozilla.org/MPL/
  *
@@ -13,20 +13,24 @@
  * @category  phpMyFAQ
  * @package   Administration
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2003-2013 phpMyFAQ Team
+ * @copyright 2003-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2003-02-23
  */
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
 $logging = new PMF_Logging($faqConfig);
 
-if ($permission['adminlog'] && 'adminlog' == $action) {
+if ($user->perm->checkRight($user->getUserId(), 'adminlog') && 'adminlog' == $action) {
 
     $date    = new PMF_Date($faqConfig);
     $perpage = 15;
@@ -58,11 +62,11 @@ if ($permission['adminlog'] && 'adminlog' == $action) {
     $loggingData = $logging->getAll();
 ?>
     <header>
-        <h2>
-            <i class="icon-tasks"></i> <?php echo $PMF_LANG["ad_menu_adminlog"]; ?>
+        <h2 class="page-header">
+            <i class="fa fa-tasks"></i> <?php echo $PMF_LANG["ad_menu_adminlog"]; ?>
             <div class="pull-right">
                 <a class="btn btn-danger" href="?action=deleteadminlog">
-                    <i class="icon-trash"></i> <?php echo $PMF_LANG['ad_adminlog_del_older_30d'] ?>
+                    <i class="fa fa-trash"></i> <?php echo $PMF_LANG['ad_adminlog_del_older_30d'] ?>
                 </a>
             </div>
         </h2>
@@ -127,12 +131,12 @@ if ($permission['adminlog'] && 'adminlog' == $action) {
     </table>
 
 <?php
-} elseif ($permission['adminlog'] && 'deleteadminlog' == $action) {
+} elseif ($user->perm->checkRight($user->getUserId(), 'adminlog') && 'deleteadminlog' == $action) {
 
     if ($logging->delete()) {
         printf('<p class="alert alert-success">%s</p>', $PMF_LANG['ad_adminlog_delete_success']);
     } else {
-        printf('<p class="alert alert-error">%s</p>', $PMF_LANG['ad_adminlog_delete_failure']);
+        printf('<p class="alert alert-danger">%s</p>', $PMF_LANG['ad_adminlog_delete_failure']);
     }
 } else {
     echo $PMF_LANG["err_NotAuth"];

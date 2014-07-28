@@ -3,7 +3,7 @@
  * The PMF_DB_Sqlite class provides methods and functions for a SQLite v2
  * database. This class is deprecated for PHP 5.3 and PHP 5.4.
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -13,7 +13,7 @@
  * @package   DB
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Johannes Schlüter <johannes@php.net>
- * @copyright 2005-2013 phpMyFAQ Team
+ * @copyright 2005-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2005-06-27
@@ -30,7 +30,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
  * @package   DB
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
  * @author    Johannes Schlüter <johannes@php.net>
- * @copyright 2005-2013 phpMyFAQ Team
+ * @copyright 2005-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2005-06-27
@@ -58,7 +58,7 @@ class PMF_DB_Sqlite implements PMF_DB_Driver
      *
      * @var     array
      */
-    public $tableNames = array();
+    public $tableNames = [];
 
     /**
      * Connects to the database.
@@ -81,33 +81,30 @@ class PMF_DB_Sqlite implements PMF_DB_Driver
     }
 
     /**
-     * Connects to a given database
+     * This function sends a query to the database.
      *
-     * @param string $database Database name
+     * @param string  $query
+     * @param integer $offset
+     * @param integer $rowcount
      *
-     * @return boolean
+     * @return  mixed $result
      */
-    public function selectDb($database)
-    {
-        return true;
-    }
-
-    /**
-     * Sends a query to the database.
-     *
-     * @param string $query SQL query
-     *
-     * @return mixed $result
-     */
-    public function query($query)
+    public function query($query, $offset = 0, $rowcount = 0)
     {
         if (DEBUG) {
             $this->sqllog .= PMF_Utils::debug($query);
         }
+
+        if (0 < $rowcount) {
+            $query .= sprintf(' LIMIT %d,%d', $offset, $rowcount);
+        }
+
         $result = sqlite_query($this->conn, $query);
+
         if (!$result) {
             $this->sqllog .= $this->error();
         }
+
         return $result;
     }
 
@@ -157,7 +154,7 @@ class PMF_DB_Sqlite implements PMF_DB_Driver
      */
     public function fetchAll($result)
     {
-        $ret = array();
+        $ret = [];
         if (false === $result) {
             throw new Exception('Error while fetching result: ' . $this->error());
         }
@@ -198,7 +195,7 @@ class PMF_DB_Sqlite implements PMF_DB_Driver
      */
     public function getTableStatus()
     {
-        $arr = array();
+        $arr = [];
 
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
         while ($row = $this->fetchArray($result)) {

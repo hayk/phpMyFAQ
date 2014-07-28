@@ -2,7 +2,7 @@
 /**
  * AJAX: handling of Ajax record calls
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -12,7 +12,7 @@
  * @package   Administration
  * @author    Anatoliy Belsky <anatoliy.belsky@mayflower.de>
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2009-2013 phpMyFAQ Team
+ * @copyright 2009-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2009-03-31
@@ -21,7 +21,11 @@
 use Symfony\Component\HttpFoundation\Response;
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
@@ -31,7 +35,7 @@ $ajax_action = PMF_Filter::filterInput(INPUT_GET, 'ajaxaction', FILTER_SANITIZE_
 // array( 0 => array((int)id, (string)langugage, (int) checked)),
 //        1 => .....
 // )
-$items = isset($_GET['items']) && is_array($_GET['items']) ? $_GET['items'] : array();
+$items = isset($_GET['items']) && is_array($_GET['items']) ? $_GET['items'] : [];
 
 if (!isset($items[0][2])) {
     $items[0][2] = 0;
@@ -43,7 +47,7 @@ switch($ajax_action) {
 
     // save active FAQs
     case 'save_active_records':
-        if ($permission['approverec']) {
+        if ($user->perm->checkRight($user->getUserId(), 'approverec')) {
             if (!empty($items)) {
                 $faq = new PMF_Faq($faqConfig);
 
@@ -62,7 +66,7 @@ switch($ajax_action) {
 
     // save sticky FAQs
     case 'save_sticky_records':
-        if ($permission['editbt']) {
+        if ($user->perm->checkRight($user->getUserId(), 'editbt')) {
 
             if (!empty($items)) {
                 $faq = new PMF_Faq($faqConfig);
@@ -82,7 +86,7 @@ switch($ajax_action) {
 
     // search FAQs for suggestions
     case 'search_records':
-        if ($permission['editbt']) {
+        if ($user->perm->checkRight($user->getUserId(), 'editbt')) {
 
             $faq             = new PMF_Faq($faqConfig);
             $faqSearch       = new PMF_Search($faqConfig);
@@ -108,7 +112,7 @@ switch($ajax_action) {
 
     // delete FAQs
     case 'delete_record':
-        if ($permission['delbt']) {
+        if ($user->perm->checkRight($user->getUserId(), 'delbt')) {
 
             $recordId   = PMF_Filter::filterInput(INPUT_POST, 'record_id', FILTER_VALIDATE_INT);
             $recordLang = PMF_Filter::filterInput(INPUT_POST, 'record_lang', FILTER_SANITIZE_STRING);
@@ -126,7 +130,7 @@ switch($ajax_action) {
 
     // delete open questions
     case 'delete_question':
-        if ($permission['delquestion']) {
+        if ($user->perm->checkRight($user->getUserId(), 'delquestion')) {
 
             $checks  = array(
                 'filter'  => FILTER_VALIDATE_INT,

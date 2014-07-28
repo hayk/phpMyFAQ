@@ -2,7 +2,7 @@
 /**
  * The Malay (Bahasa Melayu) language file
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -589,7 +589,7 @@ $PMF_LANG['ad_export_gen_docbook'] = 'Cipta fail Docbook';
 $PMF_LANG['ad_news_data'] = 'Data berita';
 $PMF_LANG['ad_news_author_name'] = 'Nama pengarang:';
 $PMF_LANG['ad_news_author_email'] = 'E-mel pengarang:';
-$PMF_LANG['ad_news_set_active'] = 'Aktif:';
+$PMF_LANG['ad_news_set_active'] = 'Aktif';
 $PMF_LANG['ad_news_allowComments'] = 'Benarkan komen:';
 $PMF_LANG['ad_news_expiration_window'] = 'Tetingkap masa luput berita (pilihan)';
 $PMF_LANG['ad_news_from'] = 'Daripada:';

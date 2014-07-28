@@ -2,7 +2,7 @@
 /**
  * phpMyFAQ system informations
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -23,7 +23,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
     exit();
 }
 
-if ($permission['editconfig']) {
+if ($user->perm->checkRight($user->getUserId(), 'editconfig')) {
     $faqSystem = new PMF_System();
 
     $twig->loadTemplate('system.twig')
@@ -45,6 +45,7 @@ if ($permission['editconfig']) {
                 )
             )
         );
+
 } else {
     echo $PMF_LANG['err_NotAuth'];
 }

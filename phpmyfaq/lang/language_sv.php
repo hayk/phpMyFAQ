@@ -8,7 +8,7 @@
  * @author     Andreas <hq6830@yahoo.no>
  * @author     Thomas Höjemo <thomas@snt.se>
  * @since      2004-07-28
- * @copyright  2004-2013 phpMyFAQ Team
+ * @copyright  2004-2014 phpMyFAQ Team
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -24,12 +24,12 @@ $PMF_LANG['msgShowAllCategories'] = 'Visa alla kategorier';
 $PMF_LANG['msgSearch'] = 'Sök';
 $PMF_LANG['msgAddContent'] = 'Lägg till inlägg';
 $PMF_LANG['msgQuestion'] = 'Ställ en fråga';
-$PMF_LANG['msgOpenQuestions'] = 'Frågor utan svar';
+$PMF_LANG['msgOpenQuestions'] = 'Obesvarade frågor';
 $PMF_LANG['msgHelp'] = 'Hjälp';
 $PMF_LANG['msgContact'] = 'Kontakt';
 $PMF_LANG['msgHome'] = 'Hem';
 $PMF_LANG['msgNews'] = ' Nyheter';
-$PMF_LANG['msgUserOnline'] = ' Besökare online';
+$PMF_LANG['msgUserOnline'] = 'Aktiva besökare';
 $PMF_LANG['msgXMLExport'] = 'XML-Fil';
 $PMF_LANG['msgBack2Home'] = 'Tillbaka till förstasidan';
 $PMF_LANG['msgFullCategories'] = 'Kategorier';
@@ -37,7 +37,7 @@ $PMF_LANG['msgFullCategoriesIn'] = 'Kategorier ';
 $PMF_LANG['msgSubCategories'] = 'Underkategori';
 $PMF_LANG['msgEntries'] = 'Inlägg';
 $PMF_LANG['msgEntriesIn'] = 'Frågor i ';
-$PMF_LANG['msgViews'] = 'besök';
+$PMF_LANG['msgViews'] = 'visningar';
 $PMF_LANG['msgPage'] = 'Sida ';
 $PMF_LANG['msgPages'] = 'Sidor';
 $PMF_LANG['msgPrevious'] = 'föregående';
@@ -583,7 +583,7 @@ $PMF_LANG['ad_export_gen_docbook'] = 'Skapa Docbook-fil';
 $PMF_LANG['ad_news_data'] = 'Data för nyhet';
 $PMF_LANG['ad_news_author_name'] = 'Författare namn:';
 $PMF_LANG['ad_news_author_email'] = 'Författare e-post:';
-$PMF_LANG['ad_news_set_active'] = 'Aktivera:';
+$PMF_LANG['ad_news_set_active'] = 'Aktivera';
 $PMF_LANG['ad_news_allowComments'] = 'Tillåt kommentarer:';
 $PMF_LANG['ad_news_expiration_window'] = 'Tid då nyheten går ut (frivilligt)';
 $PMF_LANG['ad_news_from'] = 'Från:';

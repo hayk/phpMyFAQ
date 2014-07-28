@@ -2,7 +2,7 @@
 /**
  * Helper class for phpMyFAQ FAQs
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,7 +11,7 @@
  * @category  phpMyFAQ
  * @package   Helper
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2010-2013 phpMyFAQ Team
+ * @copyright 2010-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2010-11-12
@@ -27,7 +27,7 @@ if (!defined('IS_VALID_PHPMYFAQ')) {
  * @category  phpMyFAQ
  * @package   Helper
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2010-2013 phpMyFAQ Team
+ * @copyright 2010-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2010-11-12
@@ -92,11 +92,49 @@ class PMF_Helper_Faq extends PMF_Helper
         } else {
             $http = 'http://';
         }
-                
+
         return sprintf(
             '<iframe src="%sfacebook.com/plugins/like.php?href=%s&amp;layout=standard&amp;show_faces=true&amp;width=250&amp;action=like&amp;font=arial&amp;colorscheme=light&amp;height=30" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:250px; height:30px;" allowTransparency="true"></iframe>',
             $http,
             urlencode($url)
+        );
+    }
+
+    /**
+     * Renders a Share on Facebook link
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    public function renderFacebookShareLink($url)
+    {
+        if (empty($url) || $this->_config->get('socialnetworks.disableAll') === true) {
+            return '';
+        }
+
+        return sprintf(
+            '<a href="%s" target="_blank"><img src="assets/img/facebook.png" alt="Share on Facebook" width="32" height="32"></a>',
+            $url
+        );
+    }
+
+    /**
+     * Renders a Share on Twitter link
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    public function renderTwitterShareLink($url)
+    {
+        if (empty($url) || $this->_config->get('socialnetworks.disableAll') === true) {
+            return '';
+        }
+
+        return sprintf(
+            '<a href="%s" target="_blank"><img src="assets/img/twitter.png" alt="Share on Twitter" width="32" height="32"></a>',
+            $url
         );
     }
 }

@@ -5,7 +5,7 @@
 ## What is phpMyFAQ?
 
 phpMyFAQ is a multilingual, completely database-driven FAQ-system. It supports
-various databases to store all data, PHP 5.3.3 (or higher) is needed in order to
+various databases to store all data, PHP 5.4.4 (or higher) is needed in order to
 access this data. phpMyFAQ also offers a multi-language Content Management
 System with a WYSIWYG editor and an Image Manager, flexible multi-user support
 with user and group based permissions on categories and records, a wiki-like
@@ -18,7 +18,7 @@ to use installation script.
 
 ## Requirements
 
-phpMyFAQ is only supported on PHP 5.3.3 and up, you need a database as well. Supported
+phpMyFAQ is only supported on PHP 5.4.4 and up, you need a database as well. Supported
 databases are MySQL, PostgreSQL, Microsoft SQL Server, SQLite and MariaDB. Check our detailed
 requirements on [phpmyfaq.de](http://www.phpmyfaq.de/requirements.php) for more information.
 
@@ -37,8 +37,19 @@ unzip the package and open http://www.example.org/phpmyfaq/setup/index.php in yo
     $ curl -s https://getcomposer.org/installer | php
     $ php composer.phar install
     $ npm install
+    $ bower install
+    $ grunt
 
 Then just open http://www.example.org/phpmyfaq/setup/index.php in your browser.
+
+
+## Testing
+
+To run our unittest via PHPUnit v4, just execute this command on your CLI
+
+    $ bin/phpunit
+
+Please note that phpMyFAQ needs to be installed via Composer.
 
 
 ## Versioning
@@ -80,10 +91,6 @@ Mozilla Public License 2.0, see LICENSE for more information.
 **[TinyMCE](http://tinymce.moxiecode.com/)**  
 
 Licensed under the terms of the GNU Lesser General Public License
-
-**[TinyMCE Ajax File Manager](http://www.phpletter.com/Our-Projects/Tinymce-Ajax-File-Manager-Project/)**
-
-Licensed under the terms of the Mozilla Public License
 
 **[SyntaxHighlighter](http://alexgorbatchev.com/wiki/SyntaxHighlighter)**
 
@@ -139,4 +146,4 @@ Licensed under the terms of the New BSD License
 
 
 
-Copyright (c) 2001-2013 Thorsten Rinne and the phpMyFAQ Team
+Copyright (c) 2001-2014 Thorsten Rinne and the phpMyFAQ Team

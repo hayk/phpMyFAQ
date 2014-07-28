@@ -2,7 +2,7 @@
 /**
  * The Japanese language file - try to be the best of Japanese
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -12,7 +12,7 @@
  * @package   Translation
  * @author    Tadashi Jokagi <http://poyo.jp/>
  * @author    Minoru TODA <todam@netjapan.co.jp>
- * @copyright 2004-2013 phpMyFAQ Team
+ * @copyright 2004-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2004-02-19
@@ -37,7 +37,7 @@ $PMF_LANG['msgBack2Home'] = 'メイン ページに戻る';
 $PMF_LANG['msgFullCategories'] = 'FAQ とカテゴリー';
 $PMF_LANG['msgFullCategoriesIn'] = 'カテゴリー';
 $PMF_LANG['msgSubCategories'] = '下位カテゴリー';
-$PMF_LANG['msgEntries'] = '個のFAQ';
+$PMF_LANG['msgEntries'] = 'このFAQ';
 $PMF_LANG['msgEntriesIn'] = 'カテゴリー名: ';
 $PMF_LANG['msgViews'] = '回の閲覧';
 $PMF_LANG['msgPage'] = 'ページ ';
@@ -590,7 +590,7 @@ $PMF_LANG['ad_export_gen_docbook'] = 'Docbook ファイルを作成する';
 $PMF_LANG['ad_news_data'] = 'お知らせデータ';
 $PMF_LANG['ad_news_author_name'] = '制作者名:';
 $PMF_LANG['ad_news_author_email'] = 'メールアドレス:';
-$PMF_LANG['ad_news_set_active'] = '有効化:';
+$PMF_LANG['ad_news_set_active'] = '有効化';
 $PMF_LANG['ad_news_allowComments'] = 'コメントの許可:';
 $PMF_LANG['ad_news_expiration_window'] = 'お知らせの表示期限指定 (オプション)';
 $PMF_LANG['ad_news_from'] = '開始日:';
@@ -875,3 +875,25 @@ $PMF_LANG['ad_search_delfail'] = 'The seachterm was not deleted.';
 $PMF_LANG['msg_about_faq'] = 'この FAQ について';
 $LANG_CONF['security.useSslOnly'] = array(0 => 'checkbox', 1 => 'FAQ with SSL only (初期値: 無効)');
 $PMF_LANG['msgTableOfContent'] = '目次';
+$PMF_LANG['msgShowMore'] = 'show more';
+$PMF_LANG['msgQuestionAnswered'] = 'Question answered';
+$PMF_LANG['msgMessageQuestionAnswered'] = 'Your question at %s was answered. Please check it here:';
+$PMF_LANG['ad_stopwords_desc'] = 'Please select a language to add or edit stopwords.';
+$PMF_LANG['ad_visits_per_day'] = '一日の訪問者数';
+$PMF_LANG['ad_instance_add'] = 'Add a new phpMyFAQ multi site instance';
+$PMF_LANG['ad_instance_error_notwritable'] = 'The folder /multisite isn\'t writable.';
+$PMF_LANG['ad_instance_url'] = 'Instance URL';
+$PMF_LANG['ad_instance_path'] = 'Instance path';
+$PMF_LANG['ad_instance_name'] = 'インスタンス名';
+$PMF_LANG['ad_instance_email'] = '管理者メール';
+$PMF_LANG['ad_instance_admin'] = '管理者ログイン名';
+$PMF_LANG['ad_instance_password'] = '管理者パスワード';
+$PMF_LANG['ad_instance_hint'] = 'Caution: It will take some seconds to create a new phpMyFAQ instance!';
+$PMF_LANG['ad_instance_button'] = 'インスタンスを保存';
+$PMF_LANG['ad_instance_error_cannotdelete'] = 'インスタンスを削除できません';
+$PMF_LANG['ad_instance_config'] = 'インスタンスを編集';
+$PMF_LANG['msgAboutThisNews'] = 'このニュースについて';
+$PMF_LANG['msgAccessDenied'] = '許可されていません';
+$LANG_CONF['records.randomSort'] = array(0 => 'checkbox', 1 => 'Sort FAQs randomly (default: deactivated)');
+$LANG_CONF['main.enableWysiwygEditorFrontend'] = array(0 => 'checkbox', 1 => 'Enable bundled WYSIWYG editor in frontend (default: disabled)');
+$LANG_CONF['main.enableGravatarSupport'] = array(0 => 'checkbox', 1 => 'Gravatar Support (default: disabled)');

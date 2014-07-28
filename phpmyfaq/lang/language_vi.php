@@ -7,7 +7,7 @@
  * @author     Thorsten Rinne <thorsten@phpmyfaq.de>
  * @since      2004-06-23
  * @version    SVN: $Id$
- * @copyright  2004-2013 phpMyFAQ Team
+ * @copyright  2004-2014 phpMyFAQ Team
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -709,7 +709,7 @@ $PMF_LANG['ad_export_gen_docbook'] = 'Tạo tập tin Docbook';
 $PMF_LANG['ad_news_data'] = 'Dữ liệu mới';
 $PMF_LANG['ad_news_author_name'] = 'Tên tác giả:';
 $PMF_LANG['ad_news_author_email'] = 'Email tác giả:';
-$PMF_LANG['ad_news_set_active'] = 'Kích hoạt:';
+$PMF_LANG['ad_news_set_active'] = 'Kích hoạt';
 $PMF_LANG['ad_news_allowComments'] = 'Cho phép bình luận:';
 $PMF_LANG['ad_news_expiration_window'] = 'Thời gian mở một cửa sổ nội dung (tùy chọn)';
 $PMF_LANG['ad_news_from'] = 'Từ:';

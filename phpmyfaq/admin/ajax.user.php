@@ -2,7 +2,7 @@
 /**
  * AJAX: handling of Ajax user calls
  *
- * PHP Version 5.3
+ * PHP Version 5.4
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -11,7 +11,7 @@
  * @category  phpMyFAQ
  * @package   Administration
  * @author    Thorsten Rinne <thorsten@phpmyfaq.de>
- * @copyright 2009-2013 phpMyFAQ Team
+ * @copyright 2009-2014 phpMyFAQ Team
  * @license   http://www.mozilla.org/MPL/2.0/ Mozilla Public License Version 2.0
  * @link      http://www.phpmyfaq.de
  * @since     2009-04-04
@@ -21,7 +21,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use PMF\Helper\ResponseWrapper;
 
 if (!defined('IS_VALID_PHPMYFAQ')) {
-    header('Location: http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']));
+    $protocol = 'http';
+    if (isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS']) === 'ON'){
+        $protocol = 'https';
+    }
+    header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
     exit();
 }
 
@@ -34,14 +38,16 @@ $response = new JsonResponse;
 $responseWrapper = new ResponseWrapper($response);
 $responseWrapper->addCommonHeaders();
 
-if ($permission['adduser'] || $permission['edituser'] || $permission['deluser']) {
+if ($user->perm->checkRight($user->getUserId(), 'adduser') ||
+    $user->perm->checkRight($user->getUserId(), 'edituser') ||
+    $user->perm->checkRight($user->getUserId(), 'deluser')) {
 
     $user = new PMF_User($faqConfig);
     
     switch ($ajaxAction) {
 
         case 'get_user_list':
-            $users = array();
+            $users = [];
             foreach ($user->searchUsers($usersearch) as $singleUser) {
                 $users[] = array(
                     'user_id' => $singleUser['user_id'],
@@ -53,7 +59,7 @@ if ($permission['adduser'] || $permission['edituser'] || $permission['deluser'])
 
         case 'get_user_data':
             $user->getUserById($userId);
-            $userdata           = array();
+            $userdata           = [];
             $userdata           = $user->userdata->get('*');
             $userdata['status'] = $user->getStatus();
             $userdata['login']  = $user->getLogin();
@@ -65,6 +71,12 @@ if ($permission['adduser'] || $permission['edituser'] || $permission['deluser'])
             $response->setData($user->perm->getUserRights($userId));
             break;
 
+        case 'activate_user':
+            $user->getUserById($userId);
+            $user->setStatus('active');
+            echo json_encode($user->getStatus());
+            break;
+
         case 'delete_user':
             $user->getUserById($userId);
             if ($user->getStatus() == 'protected' || $userId == 1) {
@@ -73,7 +85,7 @@ if ($permission['adduser'] || $permission['edituser'] || $permission['deluser'])
                 if (!$user->deleteUser()) {
                     $message = $PMF_LANG['ad_user_error_delete'];
                 } else {
-                    $category = new PMF_Category($faqConfig, array(), false);
+                    $category = new PMF_Category($faqConfig, [], false);
                     $category->moveOwnership($userId, 1);
 
                     // Remove the user from groups
